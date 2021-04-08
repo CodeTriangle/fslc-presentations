@@ -205,11 +205,20 @@ So let's take a bit of a tour.
     * Gentoo
     * Alpine Linux
     * Hyperbola and Parabola (Arch derivatives)
-    * Optionally in Artix, Devuan, etc.
----
-==== OPENRC (CONT.) ====
 * Similar functionality to runit.
-* Done with config files instead of directories.
-    * Can be enabled and disabled with commands.
-* Supports named runlevels.
-* Supports logging (just add a line to config).
+---
+==== s6 ====
+* skarnet.org's small and secure supervision software suite.
+* Process supervision suite.
+    * Not meant to be full init system.
+* Possible to install on top of many PID 1s.
+* Somewhat heavier than runit, but more powerful.
+* I also haven't done much with this one, either.
+---
+==== IN SUMMARY ====
+* Most modern options offer similar functionality.
+    * Supervision.
+    * Logging.
+    * Proccess that can be run as PID 1.
+    * Plain-text configuration files.
+    * Named runlevels.
