@@ -79,6 +79,7 @@ So let's take a bit of a tour.
 * "System Five" not "System Vee"
 * Used in AT&T's System III and System V Unixes.
     * Lots of Linux distros used to have this type.
+    * Slackware still does, most do not.
 * Slightly more complicated, but still rather slim.
 ---
 ==== SYSTEM V INIT (CONT.) ====
@@ -88,6 +89,7 @@ So let's take a bit of a tour.
 * Upon entering a runlevel:
     * Programs not in the new runlevel are stopped.
     * New programs in the new runlevel are started.
+    * Programs stored as files in a directory.
 * What runlevels mean:
     * runlevel 0 = halt
     * runlevel 1 = single user mode
@@ -100,9 +102,10 @@ So let's take a bit of a tour.
     * Command-line interaction with telinit(8).
     * Simpler logging.
 * It has its limitations, though.
-    * Complex.
-    * Ugly.
+    * It's a bit ugly.
     * Not that pleasant to set up.
+* Disclaimer: I have not extensively used this.
+* I will now take comments from those who have.
 ---
 ==== SYSTEMD ====
 * "System Dee" not "System Five Hundred"

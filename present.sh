@@ -2,6 +2,8 @@
 
 # this is a cool program. it's a very basic slideshow presenter.
 # argument one is the file to use. if no argument, it uses ./slides.txt
+# use '---' to separate slides.
+# type any key to continue or q to quit.
 
 file="$1"
 
@@ -21,6 +23,7 @@ for line in $(cat "$file"); do
         (*)
             echo
             echo "$line"
-            read -rsn 1;;
+            read -rsn 1
+            [ "$REPLY" = 'q' ] && exit;;
     esac
 done
