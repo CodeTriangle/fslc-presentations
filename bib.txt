@@ -1,0 +1,17 @@
+* https://en.wikipedia.org/wiki/Init
+    * A great jumping-off point for research.
+    * Has a lot of very valuable links.
+* https://arxiv.org/abs/0706.2748
+    * Paper from 2007 on Unix init schemes.
+    * Gets into very experimental territory.
+    * Came before systemd's homogenizing.
+* http://smarden.org/runit/
+    * Official website for runit.
+    * Very nicely organized.
+    * Understand runit in a few hours.
+* https://skarnet.org/software/s6/
+    * Official website for s6.
+    * Introduction to many ideas about init.
+    * Deeper dive than this presentation.
+* runit and OpenRC man pages
+    * When in doubt, just read the manual.

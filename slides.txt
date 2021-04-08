@@ -1,0 +1,212 @@
+==== INIT SYSTEMS ====
+Welcome to my presentation!
+Today I want to discuss:
+* What does an init system do?
+* How does it work?
+* Why should I care which my system uses?
+* What are the most popular options?
+* And more!
+---
+Oh, and this presentation is open source!
+So is the software that I'm using to present.
+(i'll put a link here)
+---
+==== HOW DOES A COMPUTER BOOT ====
+* This is important for understanding init.
+* It's a roughly six-step process.
+    1. The computer recieves power.
+    2. The computer loads the BIOS.
+    3. The BIOS finds and picks a boot device.
+        * You can interrupt at this point.
+    4. The selected disk points to your bootloader.
+        * For example, GRUB.
+    5. The bootloader loads and the kernel.
+    6. The kernel runs /sbin/init.
+        * Can be symlinked to a variety of programs.
+        * Generally PID 1.
+* What we care about is this last step.
+---
+==== WHAT DOES AN INIT SYSTEM DO? ====
+* Launches other programs.
+    * But generally less messy.
+* Handles everything that happens until you log in.
+* Very important part of any distro.
+    * But not something most need to think about.
+---
+==== HOW DOES AN INIT SYSTEM WORK? ====
+* Different systems take vastly different approaches.
+    * Range from simple to complicated.
+* We'll tackle each one individually.
+But first...
+---
+==== WHY SHOULD I CARE? ====
+* In many cases, you really don't need to.
+    * Distro creators think about this for you.
+    * Lots of init script stuff is automated.
+* But that's not a very Unix-y attitude, is it?
+* Why shouldn't we be able to customize this?
+* Also, sometimes you need to write startup scripts.
+So let's take a bit of a tour.
+---
+==== THE rc SCHEME ====
+* Among the earliest init systems.
+* Used in Research Unix (BSD's ancestor).
+    * Modern BSDs have more complex systems.
+---
+==== rc (CONT.) ====
+* Uses the file /etc/rc
+    * Contains a list of commands to run on startup.
+* Often more rc.* files than just this.
+    * Check your /etc to see if you have any!
+---
+==== rc (CONT.) ====
+* Simple and lightweight, but static.
+* Very hard to maintain.
+    * Don't type commands wrong.
+    * Don't type things in the wrong order.
+    * Easy to make a system unusable.
+---
+==== BEYOND rc ====
+* rc doesn't allow us do do very much.
+* What can we do to make it more versatile?
+    * Launch programs in a more orderly fashion.
+    * Make it safer.
+    * Supervise programs.
+        * Allow convenient interaction after launch.
+        * Restart programs if they stop.
+---
+==== SYSTEM V INIT ====
+* "System Five" not "System Vee"
+* Used in AT&T's System III and System V Unixes.
+    * Lots of Linux distros used to have this type.
+* Slightly more complicated, but still rather slim.
+---
+==== SYSTEM V INIT (CONT.) ====
+* Concept of runlevels
+    * Different states that your computer can be in.
+* List of programs associated with each runlevel.
+* Upon entering a runlevel:
+    * Programs not in the new runlevel are stopped.
+    * New programs in the new runlevel are started.
+* What runlevels mean:
+    * runlevel 0 = halt
+    * runlevel 1 = single user mode
+    * runlevel 6 = reboot
+    * levels 2-5 = vary between distributions
+---
+==== SYSTEM V INIT (CONT.) ====
+* More dynamic than rc:
+    * Allows for some on-the-fly configuration.
+    * Command-line interaction with telinit(8).
+    * Simpler logging.
+* It has its limitations, though.
+    * Complex.
+    * Ugly.
+    * Not that pleasant to set up.
+---
+==== SYSTEMD ====
+* "System Dee" not "System Five Hundred"
+* Introduced in 2010 as an alternative to SysV init.
+* Most popular init system today by far.
+* Available as an option for most distros.
+* Has been adopted as default by:
+    * Fedora in 2011.
+    * Arch in 2012.
+    * Debian in 2015.
+    * Ubuntu in 2015.
+    * And so on.
+---
+==== SYSTEMD (CONT.) ====
+* This list is VERY non-exhaustive.
+    * systemd provides a LOT of components.
+* systemd introduces the concept of units:
+    * .service files start and control daemons.
+    * .target units replace runlevels.
+    * .timer units run things at specific intervals.
+    * And so on.
+* logind used for validation.
+* journald used for logging.
+* timedated used for time and date manipulation.
+* networkd used for network connectivity.
+* And so on.
+---
+==== SYSTEMD (CONT.) ====
+* systemd is an init system like emacs is an editor.
+    * The init system is just a small part of it.
+    * The init system isn't the best part of it.
+    * It can do far more if you enter its world.
+* Full system management suite.
+* Standard across Linux world.
+---
+==== SYSTEMD CRITICISM ====
+* I don't like systemd.
+* My opinions:
+    * It suffers from significant mission creep.
+    * It goes against the Unix philosophy.
+    * Writing systemd units is generally unpleasant.
+    * The documentation is subpar.
+    * And so on.
+---
+==== SYSTEMD CRITICISM (CONT.) ====
+* I'm not alone!
+* GNOME and other popular programs depend on logind.
+    * Discourages init system freedom.
+* Some distros exist solely to not have systemd.
+    * Devuan for Debian
+    * Artix for Arch
+* And so on.
+* Now I will hear objections from systemd fans.
+* So let's see some modern alternatives!
+---
+==== RUNIT ====
+* First released in 2004.
+* Deliberately small and portable.
+* "Optimized for reliability and small size."
+* Well supported.
+    * Void uses runit as default.
+    * Artix can use runit as default.
+    * Debian and Ubuntu offer runit through apt.
+    * BSDs can apparently use it.
+---
+==== RUNIT (CONT.) ====
+* Runs in three stages:
+    * Stage 1: One-time tasks for startup.
+    * Stage 2: Starts all your services.
+    * Stage 3: Runs upon shutdown.
+* Services are directories containing scripts.
+    * On startup:  service/run
+    * On shutdown: service/finish
+* Logging support with svlogd.
+* Supports runlevels, but even more flexibly.
+    * Directories containing service directories.
+    * Can be named instead of numbered.
+---
+==== RUNIT (CONT.) ====
+* I'm currently using runit on my Artix machine.
+* I like that runit:
+    * feels very Unix-y.
+    * is well documented.
+    * can be fully understood with a few hours.
+* I don't like that runit:
+    * doesn't really handle dependencies.
+* I will now hear arguments from the group.
+---
+==== OPENRC ====
+* Started and maintained by the Gentoo project.
+* Based on dependencies.
+* Built to be modular.
+    * Supplies an optional init process.
+    * Supplies an optional supervisor.
+    * Or you can use the parts from other systems.
+* Used by default in:
+    * Gentoo
+    * Alpine Linux
+    * Hyperbola and Parabola (Arch derivatives)
+    * Optionally in Artix, Devuan, etc.
+---
+==== OPENRC (CONT.) ====
+* Similar functionality to runit.
+* Done with config files instead of directories.
+    * Can be enabled and disabled with commands.
+* Supports named runlevels.
+* Supports logging (just add a line to config).
