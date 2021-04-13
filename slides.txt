@@ -159,7 +159,7 @@ So let's take a bit of a tour.
     * Artix for Arch
 * And so on.
 * Now I will hear objections from systemd fans.
-* So let's see some modern alternatives!
+So let's see some alternatives!
 ---
 ==== RUNIT ====
 * First released in 2004.
