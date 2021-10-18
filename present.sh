@@ -42,14 +42,36 @@ IFS='
 
 clear
 
+QUOTE=0
+
+function substr {
+    echo "$(echo "$1" | cut -c "$2")"
+}
+
 for line in $(cat "$file"); do
-    case "$line" in
-        ('---')
-            clear;;
-        (*)
+    if [ "$line" = '---' ]; then
+        clear
+    elif [ "$(substr "$line" 1)" = '"' ]; then
+        toprint=$(substr "$line" 2-)
+        if [ $QUOTE = 0 ]; then
+            echo -n " “$toprint"
+            QUOTE=1
+        elif [ "$(substr "$line" 2)" = "-" ]; then
+            echo '”'
+            echo "    $toprint"
+            QUOTE=0
+        else
             echo
-            echo "$line"
-            read -rsn 1
-            [ "$REPLY" = 'q' ] && exit;;
-    esac
+            echo -n "  $toprint"
+        fi
+    else
+        if [ $QUOTE = 1 ]; then
+            echo "”"
+        fi
+        QUOTE=0
+        echo
+        echo "$line"
+        read -rsn 1
+        [ "$REPLY" = 'q' ] && exit
+    fi
 done

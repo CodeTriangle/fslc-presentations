@@ -9,7 +9,7 @@ Today I want to discuss:
 ---
 Oh, and this presentation is open source!
 So is the software that I'm using to present.
-=> https://github.com/CodeTriangle/init-systems-presentation
+=> https://github.com/CodeTriangle/fslc-presentations
 ---
 ==== HOW DOES A COMPUTER BOOT ====
 * This is important for understanding init.
