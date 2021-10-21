@@ -1,0 +1,28 @@
+=> https://gemini.circumlunar.space/
+    * Intro to Gemini project.
+=> https://motherfuckingwebsite.com/
+=> http://bettermotherfuckingwebsite.com/
+    * Fun satirical websites.
+    * Minimal web design.
+    * Create minimal but responsive pages.
+=> https://en.wikipedia.org/wiki/Unix_philosophy
+    * Wikipage for the Unix Philosophy.
+    * Good jumping-off point.
+=> https://www.busybox.net/
+    * Replacement for GNU coreutils.
+    * Compiles as one binary -- shared backend.
+=> http://smarden.org/runit/
+    * Official website for runit.
+    * Very nicely organized.
+    * Understand runit in a few hours.
+=> https://skarnet.org/software/s6/
+    * Official website for s6.
+    * Introduction to many ideas about init.
+    * Deeper dive than this presentation.
+=> https://suckless.org
+    * Home of DWM and ST.
+    * Interesting ideas about minimalism.
+=> http://harmful.cat-v.org/software/
+    * A group of extreme minimalists.
+    * Long list of harmful software.
+    * Some satirical stuff as well.

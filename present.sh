@@ -54,16 +54,22 @@ for line in $(cat "$file"); do
     elif [ "$(substr "$line" 1)" = '"' ]; then
         toprint=$(substr "$line" 2-)
         if [ $QUOTE = 0 ]; then
+            echo
             echo -n " “$toprint"
             QUOTE=1
         elif [ "$(substr "$line" 2)" = "-" ]; then
             echo '”'
             echo "    $toprint"
             QUOTE=0
+            read -rsn 1
         else
             echo
             echo -n "  $toprint"
         fi
+    elif [ "$(substr "$line" 1)" = '$' ]; then
+        eval "$(substr "$line" 2-)"
+    elif [ -z "$line" ]; then
+        echo
     else
         if [ $QUOTE = 1 ]; then
             echo "”"

@@ -1,0 +1,217 @@
+==== SOFTWARE MINIMALISM ====
+Welcome to my presentation!
+Today I want to discuss:
+* What is software minimalism?
+* Who are its fans?
+* Why might you be interested in it?
+* What are some popular minimal solutions?
+* If I am successful today:
+    * Most software will make you anxious.
+    * You will care more about your own system.
+    * You will be radicalized.
+---
+Oh, and this presentation is open source!
+So is my other presentation on init systems.
+So is the software that I'm using to present.
+=> https://github.com/CodeTriangle/fslc-presentations
+---
+==== THE STATUS QUO: WINDOWS SUCKS ====
+* Using a computer in 2021 can kind of suck.
+* Windows is a bloated mess.
+    * The start menu has irremovable ads.
+    * Don't touch its preinstalled programs.
+    * etc.
+    * etc.
+    * You don't need me to tell you this.
+---
+==== THE STATUS QUO: LINUX ROCKS ====
+* No wonder people are flocking to Linux!
+* So much customizability!
+* Let's look at Ubuntu:
+    * It comes in so many different flavors.
+    * You can choose your desktop environment.
+    * No software choices are made for you!
+    * ... Or are they?
+---
+==== THE STATUS QUO: LINUX SUCKS ====
+* Well, it's not so perfect.
+* Ubuntu is actually really picky.
+    * Don't change the desktop environment.
+    * Compulsory snaps.
+    * Still has many programs you won't use.
+    * The installation is 3 gigabytes!
+    * I haven't used it so I can't roast it more.
+---
+==== THE STATUS QUO: ARCH LINUX ROCKS ====
+* What about Arch Linux?
+* You've probably heard good things about it.
+    * Minimal base installation.
+    * Choose your own packages.
+    * Complete control over your system!
+    * ... But do you?
+---
+==== THE STATUS QUO: ARCH LINUX SUCKS ====
+* But Arch Linux isn't the perfect package.
+* What if you don't like:
+    * systemd?
+    * the GNU coreutils?
+    * the way some packages are built?
+* That's when we get to the really weird distros.
+    * Artix Linux
+    * Alpine Linux
+    * Gentoo
+    * Linux From Scratch?
+---
+==== SOME QUOTES ====
+"Every program attempts to expand until it can
+"read mail. Those programs which cannot so expand
+"are replaced by ones which can.
+"- Zawinski's law
+"Everything should be made as simple as possible,
+"but no simpler
+"- Albert Einstein
+---
+==== LET'S TALK ABOUT THE WEB ====
+* I really can't do this topic justice on my own.
+* Fortunately I know a really good article about it.
+$firefox https://drewdevault.com/2020/03/18/Reckless-limitless-scope.html
+---
+==== THE WEB (cont.) ====
+* CSS and JavaScript are growing at a record pace.
+* All these frontend frameworks slow page loads.
+* Massive images imported to fill space.
+* Web browsers will eat your resources.
+* Everything sucks.
+* Is there a better way?
+---
+==== WEB ALTERNATIVES ====
+* The web will never be 100% replaced.
+* But some ultra-geeks think they have the solution.
+* Gopher and Gemini:
+    * Small protocols that work like HTTP.
+    * But smaller, and serve raw text.
+    * Wild west of the internet.
+---
+==== FIXING THE WEB ====
+* You can also just design your webpages better.
+    * Do you really need 5 megabytes of fonts?
+    * Do you really need jQuery for that one animation?
+    * Don't think about what you can add.
+    * Think about what you can delete.
+"We used to sit around in the Unix Room saying, 'What
+"can we throw out? Why is there this option?' It's often
+"because there is some deficiency in the basic design.
+"...Instead of adding an option, think about what was
+"forcing you to add that option.
+"- Doug McIlroy
+$firefox http://bettermotherfuckingwebsite.com/
+$firefox https://motherfuckingwebsite.com/
+---
+==== THE UNIX PHILOSOPHY ====
+* A set of ideas about OS design.
+* UNIX was written in C instead of assembly.
+* This led to better modularity and reusability.
+* Arguably, the key to UNIX's success.
+* Over time, experience led to some cultural norms:
+    1. do one thing well, not many things average.
+    2. work well with other programs.
+        * piping
+        * output in text
+        * minimal interactive input.
+---
+==== LET'S TALK ABOUT GNU ====
+* Many Linux distros ship with lots of GNU code.
+* GNU has done a lot of stuff:
+    * glibc
+    * coreutils
+    * bash
+    * emacs
+    * gcc
+    * gimp
+    * stow
+    * gpg
+    * grub
+    * and more!
+---
+==== GNU (cont.) ====
+* But lots of people have beef with GNU.
+    * Projects tend to get large fast.
+        * and slow!
+        * Anti-UNIX philosophy.
+    * Subtle differences in implementations.
+        * "bash-isms"
+    * auto{conf,make}
+    * Incompatible documentation system.
+    * GPL
+---
+==== LET'S TALK ABOUT SYSTEMD ====
+* Init systems are important.
+* Start when your computer starts.
+* Run all of your processes for you.
+* Offer supervision.
+* Lots of fun stuff.
+---
+==== SYSTEMD (cont.) ====
+* systemd is the most popular Linux init system.
+* It's probably what you use.
+* I don't like systemd.
+    * VERY Anti-UNIX philosophy.
+* It's massive and bloated.
+    * This makes it insecure.
+* I could give you a presentation on why.
+    * In fact, I did!
+    * I don't want to go too far into this.
+---
+==== SYSTEMD ALTERNATIVES ====
+* Fortunately, there are many good replacements.
+* I use runit.
+* OpenRC and s6 are other big names.
+* BSDs often have their own init systems.
+* Check out my other presentation for more.
+---
+==== WINDOW MANAGERS ====
+* So my last slides were a bit apocalyptic.
+* Let's finish off with something fun.
+* You deal with windows every day.
+* They are how you interact with most programs.
+* Shouldn't you have control over them?
+---
+==== DESKTOP ENVIRONMENTS ====
+* I will not judge if you use KDE, MATE, etc.
+* BUT.
+* These solutions are very large.
+* They come with lots of stuff you don't need.
+* I think there is a better way.
+* Right now I'm using DWM.
+* It's a tiny program, by default <2000 LoC.
+* And it does everything I want.
+* Look at this.
+$st -e top &
+$st -e man dwm &
+$st -e sh -c 'neofetch; read -rsn 1' &
+---
+==== WHAT I CAN DO ====
+* Switch what's in the master pane.
+* Add more windows to the stack.
+* Delete windows from the stack.
+* Add more windows to the master pane.
+* Make a window floating.
+* Switch from tiling mode.
+* These are all simple keybindings.
+---
+==== WHAT ELSE I CAN DO ====
+* Because DWM's source code is small:
+    * There are lots of patches.
+    * It's easy to hack on the program.
+* I have added my own personal touches.
+    * Look at all the colors!
+    * Deck mode!
+    * Keybindings to do common tasks.
+---
+==== SUCKLESS ====
+* Let's go to suckless.org
+$firefox https://suckless.org
+* Very famous in minimalist software world.
+* Have DWM and ST.
+* Are... a bit extreme in their ideology.
+* I think they have good points though.
