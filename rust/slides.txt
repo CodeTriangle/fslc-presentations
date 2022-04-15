@@ -1,0 +1,153 @@
+==== RUST ====
+Welcome to my presentation!
+Today's discussion will include:
+* What is systems programming?
+* What is memory safety?
+* What is Rust?
+* How can Rust help me write better code?
+* What are some of Rust's cool features?
+---
+Oh, and this presentation is open source!
+So is the software that I'm using to present.
+So are my other presentations for this club.
+=> https://github.com/CodeTriangle/fslc-presentations
+---
+==== SYSTEMS PROGRAMMING ====
+* Systems programming works with the OS.
+* Generally less client-focused.
+* Needs to be performant.
+* Languages like C and C++.
+* Generally harder to work with.
+    * Take more planning.
+    * Require more knowledge of memory.
+* But, significantly faster than scripting languages.
+---
+==== RUST ====
+* Rust is a new(er) systems programming language.
+* Created in 2010 by employees at Mozilla Research.
+* Notably used in Firefox Servo browser.
+* "Most Loved" language for the past six years.
+* Focus on "safety".
+    * All variables are immutable by default.
+    * Rust provides memory safety.
+    * Rust has atomic types for safe concurrency.
+---
+==== MEMORY LEAKS ====
+* Memory always needs to be freed.
+* C's solution: manual memory management.
+* Java's solution: garbage collection.
+---
+==== MANUAL MEMORY MANAGEMENT ====
+* When you allocate memory, you need to return it.
+* Use `malloc()` to allocate.
+* Use `free()` to free.
+$nvim manual.c
+$./manual
+* Easy, right?
+---
+==== MANUAL MEMORY MANAGEMENT: PROS AND CONS ====
+* Incredible speed.
+* Gives the programmer the most control.
+* But, don't forget a single `free()`
+* You do all the work.
+* Do you really trust yourself to remember that?
+---
+==== GARBAGE COLLECTION ====
+* The runtime handles memory.
+* Watches for who needs data.
+* Once the data is unused, deallocates for you.
+$nvim Gc.java
+$java Gc
+* See, much easier!
+---
+==== GARBAGE COLLECTION: PROS AND CONS ====
+* Very easy on the programmer.
+* Prevents memory leaks.
+* Sloooooooooooow.
+* Tons of overhead.
+---
+==== A THIRD METHOD? ====
+* In most cases, we do not need GC.
+* But we also don't want to go full manual.
+---
+==== RAII ====
+* Find lifetime of every variable at compile time.
+* Compiler fills in the blanks.
+* Memory safety with less overhead than GC.
+$nvim raii.rs
+$./raii
+* Looks high-level, actually very performant.
+---
+==== NULL POINTERS ====
+* Null pointers are a massive pain point.
+"I call it my billion-dollar mistake. It was the invention of the null
+"reference. At that time, I was designing the first comprehensive type system
+"for references in an object oriented language. My goal was to ensure that all
+"use of references should be absolutely safe... but I couldn't resist the
+"temptation to put in a null reference. This has led to innumerable errors,
+"vulnerabilities, and system crashes, which have probably caused a billion
+"dollars of pain and damage in the last forty years.
+"- Sir Tony Hoare
+---
+==== NULL POINTERS (cont.) ====
+* The answer is obvous, right?
+* Just have references that can't be null!
+* The industry is years behind on this.
+* Rust has no nullable references.
+---
+==== DATA RACES ====
+* Imagine the following:
+    * Resource R is initialized.
+    * Thread A gets reference to R.
+    * Thread B also gets a reference.
+    * Thread A begins an operation on R.
+    * Thread B requests information from R.
+* This can lead to unexpected results.
+* Happens in single-threaded programs as well.
+---
+==== DATA RACE MITIGATION ====
+* Mutexes help for multi-threaded.
+* C++ invalidates iterators.
+* C makes you figure it out by yourself.
+* Rust's solution: Ownership.
+---
+==== OWNERSHIP ====
+* Every resource is owned by one function.
+* When you pass resource R in:
+    * Ownership is transferred to callee.
+    * Caller cannot access R after call.
+* When you pass reference to R:
+    * Ownership is not transferred.
+    * Callee borrows R.
+    * Caller can access R after call.
+---
+==== OWNERSHIP IN ACTION ====
+$nvim move.rs
+$rustc move.rs
+* This code doesn't compile
+$nvim borrow.rs
+$./borrow
+* This code works!
+---
+==== OTHER COOL THINGS ====
+* Reference-counted types
+    * Do borrow checking at runtime.
+* Enum types
+    * May encapsulate one of several types.
+    * Keeps a flag for what types exist.
+* Option<T>
+    * Type that can be Some or None
+    * Safe version of nullable references.
+* Result<T, E>
+    * Rust's way to handle errors.
+    * Functions that may have an error return Result.
+    * Result is either Ok(T) or Err(E).
+    * Handle things differently depending on return.
+* Cargo
+    * Rust's build system.
+    * Automatically grab packages from crates.io.
+    * Easy to set up a project.
+    * Comes with a testing framework.
+* LSP support
+    * Write Rust in your favorite editor with completion.
+* And more!
