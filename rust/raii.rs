@@ -1,7 +1,7 @@
 const LENGTH: usize = 15;
 
 fn main() {
-    let mut numbers = [0; LENGTH];
+    let mut numbers = Box::new([0; LENGTH]);
 
     numbers[0] = 1;
     numbers[1] = 1;

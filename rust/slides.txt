@@ -33,12 +33,16 @@ So are my other presentations for this club.
     * Rust has atomic types for safe concurrency.
 ---
 ==== MEMORY LEAKS ====
-* Memory always needs to be freed.
+* Variables are stored either on the stack or the heap.
+    * Primitive types are almost always on the stack.
+    * Complex structures are usually on the heap.
+* Memory allocated on the heap always needs to be freed.
 * C's solution: manual memory management.
 * Java's solution: garbage collection.
 ---
 ==== MANUAL MEMORY MANAGEMENT ====
-* When you allocate memory, you need to return it.
+* You allocate memory on the heap.
+    * OS expects you need to return it.
 * Use `malloc()` to allocate.
 * Use `free()` to free.
 $nvim manual.c
@@ -49,12 +53,13 @@ $./manual
 * Incredible speed.
 * Gives the programmer the most control.
 * But, don't forget a single `free()`
-* You do all the work.
+* Programmer does all the work.
 * Do you really trust yourself to remember that?
 ---
 ==== GARBAGE COLLECTION ====
-* The runtime handles memory.
-* Watches for who needs data.
+* All structures are stored on the heap.
+* The runtime handles allocation and freeing.
+* Counts how many places still need each piece of data.
 * Once the data is unused, deallocates for you.
 $nvim Gc.java
 $java Gc
@@ -74,6 +79,10 @@ $java Gc
 * Find lifetime of every variable at compile time.
 * Compiler fills in the blanks.
 * Memory safety with less overhead than GC.
+* Popularized by C++.
+$nvim raii.cpp
+$./raiicpp
+* Look, no `free()`!
 $nvim raii.rs
 $./raii
 * Looks high-level, actually very performant.
@@ -90,9 +99,8 @@ $./raii
 "- Sir Tony Hoare
 ---
 ==== NULL POINTERS (cont.) ====
-* The answer is obvous, right?
+* The answer turns out to be pretty easy.
 * Just have references that can't be null!
-* The industry is years behind on this.
 * Rust has no nullable references.
 ---
 ==== DATA RACES ====
@@ -129,7 +137,9 @@ $nvim borrow.rs
 $./borrow
 * This code works!
 ---
-==== OTHER COOL THINGS ====
+==== REALLY COOL FEATURES ====
+* Iterators:
+    * Performant functional programming.
 * Reference-counted types
     * Do borrow checking at runtime.
 * Enum types
