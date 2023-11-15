@@ -3,7 +3,8 @@ struct Coords {
     y: i32,
 }
 
-// changing fields on a mutable reference
+// copy c but make both options negative
+// note the ampersand -- that designates a reference
 fn invert(c: &Coords) -> Coords {
     Coords { x: -c.x, y: -c.y }
 }
@@ -15,6 +16,5 @@ fn main() {
 
     println!("{}, {}", d.x, d.y); // "-5, -6"
 
-    // SUCCEEDS; prints negative of coords.
     println!("{}, {}", c.x, c.y); // "5, 6"
 }

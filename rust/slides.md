@@ -1,4 +1,7 @@
-# Rust
+---
+author: Richard Snider (Trongle)
+---
+# Crab Trap: An Introduction to Rust
 Welcome to my presentation!
 Today's discussion will include:
 * What is systems programming?
@@ -8,7 +11,7 @@ Today's discussion will include:
 * What are some of Rust's cool features?
 
 ---
-# About this presentation
+# About This Presentation
 * Oh, and this presentation is open source!
 * So is the software that I'm using to present.
 * So are my other presentations for this club.
@@ -49,86 +52,81 @@ Today's discussion will include:
     * Concurrency
 
 ---
-# Memory Leaks
-* Variables are stored either on the stack or the heap.
+# Memory Management
+* In a program, data are stored either on the stack or the heap.
 * Limitations of the stack:
     * Memory in the stack is local to the function.
     * Hard to access variables outside of the function we're in.
     * Passing variables in means copying the whole contents.
 * Limitations of the heap:
     * Memory on the heap can be requested (allocated).
-    * Storing one copy of a large structure on the heap is easy.
     * All heap memory must be returned (freed).
-    * If we don't free the memory we use, that's a memory leak.
+* Some common errors with freeing memory:
+    * **Memory Leak**: used memory is never freed.
+    * **Dangling Pointers**: memory is freed while references still exist.
+    * **Double free**: memory is freed twice.
 
 ---
-# C: Manual Memory Management
-* You allocate memory on the heap explicitly.
-    * OS expects you need to return it.
-* Use `malloc()` to allocate.
-* Use `free()` to free.
+# Manual Memory Management
+* Programmer allocates memory on the heap explicitly.
+    * OS expects you to return it.
+* C is the canonical example:
+    * Use `malloc()` to allocate.
+    * Use `free()` to free.
+    * Easy, right?
 
 ---
-# Manual Memory Management Example
-```
-~~~cat manual.c
-* Easy, right?
+# Manual Memory Management: Example
+
+```cpp
+~~~xargs cat
+manual.c
 ~~~
 ```
 
 ---
-# I lied about C
+# Manual Memory Management: I lied about C
 * Admittedly, that last example is a bit contrived.
 * A function that returns a newly allocated array is a code smell.
 * I just needed a way to show the syntax.
-* So let's look at a real world example.
+* So let's look at an example that you might actually encounter.
 * Open your manual to section 3, page `regex`.
 
 ---
-# C Redux (Cdux)
+# Manual Memory Management: C Redux (Cdux)
 ```cpp
-#include <stdio.h>
-#include <regex.h>
-
-int main(int argc, char *argv[]) {
-    
-}
-
+~~~xargs cat
+regex.c
+~~~
 ```
 
 ---
 # Manual Memory Management: Pros and Cons
+
+## Pros
 * Incredible speed.
 * Gives the programmer the most control.
-* But, don't forget a single `free()`
+
+## Cons
+* Don't forget a single `free()`
 * Programmer does all the work.
 * Do you really trust yourself to remember that?
+* Susceptible to **all** of the previously-discussed errors.
 
 ---
 # Garbage Collection
 * All structures are stored on the heap.
-* The runtime handles allocation and freeing.
-* Counts how many places still need each piece of data.
-* Once the data is unused, deallocates for you.
+* The runtime handles allocation and freeing for us.
+* The garbage collector runs intermittently.
+    * Checks if a bit of memory is still being used.
+    * If not, frees it.
 
 ---
+# Garbage Collection: Example
 ```java
-public class Gc {
-    public static void main(String[] args) {
-        int[] numbers = new int[15];
-
-        numbers[0] = 1;
-        numbers[1] = 1;
-
-        for (int i = 2; i < numbers.length; i++) {
-            numbers[i] = numbers[i-1] + numbers[i-2];
-        }
-
-        for (int i = 0; i < numbers.length; i++) {
-            System.out.println(numbers[i]);
-        }
-    }
-}
+~~~xargs cat
+Gc.java
+~~~
 ```
 * See, much easier!
 
@@ -137,85 +135,109 @@ public class Gc {
 
 ## Pros
 * Very easy on the programmer.
-* Prevents memory leaks.
+* Prevents all the memory errors previously discussed.
 
 ## Cons
 * Sloooooooooooow.
-* Tons of overhead.
+* Adds tons of overhead:
+    * Can add up to be a significant portion of runtime.
+* Can be completely unnecessary for some tasks.
 
 ---
-# A Third Method?
-* In most cases, we do not need GC.
-* But we also don't want to go full manual.
+# Garbage Collection: A Defense Thereof
+* I give GC a hard time, but it's not all bad.
+* It truly is effortless.
+* There's a reason that garbage collected languages are:
+    * often recommended as first languages.
+    * used to create a prototype of an idea.
+    * great for scripting.
+* For a lot of use cases, the overhead is justified.
+
+## However
+* Sometimes GC cannot be tolerated.
+* Questioning preconcieved notions is how we move forward.
 
 ---
 # RAII
-* Find lifetime of every variable at compile time.
-* Compiler fills in the blanks.
-* Memory safety with less overhead than GC.
-* Popularized by C++.
-$nvim raii.cpp
-$./raiicpp
+* Stands for "Resource Acquisiton is Initialization"
+* A newer pattern, popularized by C++.
+* No manual memory management, but no additional overhead.
+
+## How It Works
+* Objects have a constructor **and** a destructor.
+    * Constructor may allocate memory, managed by the object.
+    * Destructor `free()`s all memory allocated by constructor.
+* Compiler finds "lifetime" of structures at compile time.
+* When the structure goes out of scope, the destructor is run.
+* Combats memory problems previously mentioned.
+* Looks and feels high-level, actually very performant.
+
+---
+# RAII: Example in C++
+```cpp
+~~~xargs cat
+raii.cpp
+~~~
+```
 * Look, no `free()`!
-$nvim raii.rs
-$./raii
-* Looks high-level, actually very performant.
+* Sorry it looks bad, it's C++.
 
 ---
-# Null Pointers
-* Null pointers are a massive pain point.
-> I call it my billion-dollar mistake. It was the invention of the null
-> reference. At that time, I was designing the first comprehensive type system
-> for references in an object oriented language. My goal was to ensure that all
-> use of references should be absolutely safe... but I couldn't resist the
-> temptation to put in a null reference. This has led to innumerable errors,
-> vulnerabilities, and system crashes, which have probably caused a billion
-> dollars of pain and damage in the last forty years.
-> - Sir Tony Hoare
+# RAII: Example in Rust
+```rust
+~~~xargs cat
+raii.rs
+~~~
+```
+* This is our first rust code, so let's look into it a bit.
 
 ---
-# Null Pointers (cont.)
+# Ownership
+* RAII in Rust is tightly coupled to another concept: Ownership.
+    * C++ also kind of has it, but it's complicated.
+* Every resource is owned by one function.
+    * Destructor is called when resource goes out of scope where it is owned.
+* When you pass resource R in:
+    * Ownership is transferred to callee.
+    * Caller cannot access R after call.
+    * This prevents data races as well.
+* When you pass reference to R:
+    * Ownership is not transferred.
+    * Callee "borrows" R while it is running.
+    * Caller never loses ownership of R and can access R after call.
+
+---
+# Ownership: Example
+```rust
+~~~xargs cat
+borrow.rs
+~~~
+```
+
+---
+# Nullity
+* Null pointers are a massive pain.
+* A common pattern is to return a null pointer or reference on failed operation.
+* This is an extremely easy step to forget.
+* According to Sir Tony Hoare, credited with the creation of ALGOL's type system:
+> [The null reference] has led to innumerable errors, vulnerabilities, and system crashes, which have probably caused a billion dollars of pain and damage in the last forty years.
 * The answer turns out to be pretty easy.
 * Just have references that can't be null!
 * Rust has no nullable references.
 
 ---
-# Data Races
-* Imagine the following:
-    * Resource R is initialized.
-    * Thread A gets reference to R.
-    * Thread B also gets a reference.
-    * Thread A begins an operation on R.
-    * Thread B requests information from R.
-* This can lead to unexpected results.
-* Happens in single-threaded programs as well.
+# Nullity: How Rust Fixes The Billion Dollar Mistake
+* The `Option<T>` type.
+* `Option<T>` stores either:
+    * `Some(T)`: the result (stored as the argument of T) exists.
+    * `None`: the result doesn't exist.
+* Optional types exist elsewhere, but Rust emphasizes them.
 
----
-# Data Race Mitigation
-* Mutexes help for multi-threaded.
-* C++ invalidates iterators.
-* C makes you figure it out by yourself.
-* Rust's solution: Ownership.
-
----
-# Ownership
-* Every resource is owned by one function.
-* When you pass resource R in:
-    * Ownership is transferred to callee.
-    * Caller cannot access R after call.
-* When you pass reference to R:
-    * Ownership is not transferred.
-    * Callee borrows R.
-    * Caller can access R after call.
-
----
-# Ownership in Action
-$nvim move.rs
-$rustc move.rs
-* This code doesn't compile
-$nvim borrow.rs
-$./borrow
-* This code works!
+```rust
+~~~xargs cat
+nullity.rs
+~~~
+```
 
 ---
 # Really Cool Features
