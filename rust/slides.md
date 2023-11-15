@@ -1,4 +1,4 @@
-==== RUST ====
+# Rust
 Welcome to my presentation!
 Today's discussion will include:
 * What is systems programming?
@@ -6,23 +6,27 @@ Today's discussion will include:
 * What is Rust?
 * How can Rust help me write better code?
 * What are some of Rust's cool features?
+
 ---
-Oh, and this presentation is open source!
-So is the software that I'm using to present.
-So are my other presentations for this club.
-=> https://github.com/CodeTriangle/fslc-presentations
+# About this presentation
+* Oh, and this presentation is open source!
+* So is the software that I'm using to present.
+* So are my other presentations for this club.
+* Slideshow: https://github.com/CodeTriangle/fslc-presentations
+* Software: https://github.com/maaslalani/slides
+
 ---
-==== SYSTEMS PROGRAMMING ====
+# Systems Programming
 * Systems programming works with the OS.
-* Generally less client-focused.
 * Needs to be performant.
 * Languages like C and C++.
-* Generally harder to work with.
-    * Take more planning.
+* Generally harder to work with than interpreted languages.
+    * Take more planning to do the same task.
     * Require more knowledge of memory.
-* But, significantly faster than scripting languages.
+* But, very fast compared to other languages.
+
 ---
-==== RUST ====
+# Rust
 * Rust is a new(er) systems programming language.
 * Created in 2010 by employees at Mozilla Research.
 * Notably used in Firefox Servo browser.
@@ -31,51 +35,122 @@ So are my other presentations for this club.
     * All variables are immutable by default.
     * Rust provides memory safety.
     * Rust has atomic types for safe concurrency.
+
 ---
-==== MEMORY LEAKS ====
+# Why is Rust ~~Better~~ Different?
+* Programming is fundamentally annoying.
+* We are very good at finding ways to make it less annoying.
+* But there are still some things that are just hard to do.
+* How does Rust help programmers do these things?
+* We'll discuss a few of them:
+    * Memory management
+    * Null pointers
+    * Data races
+    * Concurrency
+
+---
+# Memory Leaks
 * Variables are stored either on the stack or the heap.
-    * Primitive types are almost always on the stack.
-    * Complex structures are usually on the heap.
-* Memory allocated on the heap always needs to be freed.
-* C's solution: manual memory management.
-* Java's solution: garbage collection.
+* Limitations of the stack:
+    * Memory in the stack is local to the function.
+    * Hard to access variables outside of the function we're in.
+    * Passing variables in means copying the whole contents.
+* Limitations of the heap:
+    * Memory on the heap can be requested (allocated).
+    * Storing one copy of a large structure on the heap is easy.
+    * All heap memory must be returned (freed).
+    * If we don't free the memory we use, that's a memory leak.
+
 ---
-==== MANUAL MEMORY MANAGEMENT ====
-* You allocate memory on the heap.
+# C: Manual Memory Management
+* You allocate memory on the heap explicitly.
     * OS expects you need to return it.
 * Use `malloc()` to allocate.
 * Use `free()` to free.
-$nvim manual.c
-$./manual
+```cpp
+#include <stdio.h>
+#include <stdlib.h>
+
+void arrayx2(int* input, int* output, int length) {
+    int i;
+    for (i = 0; i < length; i++) {
+        output[i] = 2 * input[i];
+    }
+}
+
+int main(int argc, char* argv[]) {
+        int* numbers = malloc(sizeof(int) * LENGTH);
+
+        numbers[0] = 1;
+        numbers[1] = 1;
+
+        for (int i = 2; i < LENGTH; i++) {
+                numbers[i] = numbers[i-1] + numbers[i-2];
+        }
+
+        for (int i = 0; i < LENGTH; i++) {
+                printf("%5d\n", numbers[i]);
+        }
+
+        free(numbers);
+}
+```
 * Easy, right?
+
 ---
-==== MANUAL MEMORY MANAGEMENT: PROS AND CONS ====
+# Manual Memory Management: Pros and Cons
 * Incredible speed.
 * Gives the programmer the most control.
 * But, don't forget a single `free()`
 * Programmer does all the work.
 * Do you really trust yourself to remember that?
+
 ---
-==== GARBAGE COLLECTION ====
+# Garbage Collection
 * All structures are stored on the heap.
 * The runtime handles allocation and freeing.
 * Counts how many places still need each piece of data.
 * Once the data is unused, deallocates for you.
-$nvim Gc.java
-$java Gc
-* See, much easier!
+
 ---
-==== GARBAGE COLLECTION: PROS AND CONS ====
+```java
+public class Gc {
+    public static void main(String[] args) {
+        int[] numbers = new int[15];
+
+        numbers[0] = 1;
+        numbers[1] = 1;
+
+        for (int i = 2; i < numbers.length; i++) {
+            numbers[i] = numbers[i-1] + numbers[i-2];
+        }
+
+        for (int i = 0; i < numbers.length; i++) {
+            System.out.println(numbers[i]);
+        }
+    }
+}
+```
+* See, much easier!
+
+---
+# Garbage Collection: Pros and Cons
+
+## Pros
 * Very easy on the programmer.
 * Prevents memory leaks.
+
+## Cons
 * Sloooooooooooow.
 * Tons of overhead.
+
 ---
-==== A THIRD METHOD? ====
+# A Third Method?
 * In most cases, we do not need GC.
 * But we also don't want to go full manual.
+
 ---
-==== RAII ====
+# RAII
 * Find lifetime of every variable at compile time.
 * Compiler fills in the blanks.
 * Memory safety with less overhead than GC.
@@ -86,24 +161,27 @@ $./raiicpp
 $nvim raii.rs
 $./raii
 * Looks high-level, actually very performant.
+
 ---
-==== NULL POINTERS ====
+# Null Pointers
 * Null pointers are a massive pain point.
-"I call it my billion-dollar mistake. It was the invention of the null
-"reference. At that time, I was designing the first comprehensive type system
-"for references in an object oriented language. My goal was to ensure that all
-"use of references should be absolutely safe... but I couldn't resist the
-"temptation to put in a null reference. This has led to innumerable errors,
-"vulnerabilities, and system crashes, which have probably caused a billion
-"dollars of pain and damage in the last forty years.
-"- Sir Tony Hoare
+> I call it my billion-dollar mistake. It was the invention of the null
+> reference. At that time, I was designing the first comprehensive type system
+> for references in an object oriented language. My goal was to ensure that all
+> use of references should be absolutely safe... but I couldn't resist the
+> temptation to put in a null reference. This has led to innumerable errors,
+> vulnerabilities, and system crashes, which have probably caused a billion
+> dollars of pain and damage in the last forty years.
+> - Sir Tony Hoare
+
 ---
-==== NULL POINTERS (cont.) ====
+# Null Pointers (cont.)
 * The answer turns out to be pretty easy.
 * Just have references that can't be null!
 * Rust has no nullable references.
+
 ---
-==== DATA RACES ====
+# Data Races
 * Imagine the following:
     * Resource R is initialized.
     * Thread A gets reference to R.
@@ -112,14 +190,16 @@ $./raii
     * Thread B requests information from R.
 * This can lead to unexpected results.
 * Happens in single-threaded programs as well.
+
 ---
-==== DATA RACE MITIGATION ====
+# Data Race Mitigation
 * Mutexes help for multi-threaded.
 * C++ invalidates iterators.
 * C makes you figure it out by yourself.
 * Rust's solution: Ownership.
+
 ---
-==== OWNERSHIP ====
+# Ownership
 * Every resource is owned by one function.
 * When you pass resource R in:
     * Ownership is transferred to callee.
@@ -128,16 +208,18 @@ $./raii
     * Ownership is not transferred.
     * Callee borrows R.
     * Caller can access R after call.
+
 ---
-==== OWNERSHIP IN ACTION ====
+# Ownership in Action
 $nvim move.rs
 $rustc move.rs
 * This code doesn't compile
 $nvim borrow.rs
 $./borrow
 * This code works!
+
 ---
-==== REALLY COOL FEATURES ====
+# Really Cool Features
 * Iterators:
     * Performant functional programming.
 * Reference-counted types
