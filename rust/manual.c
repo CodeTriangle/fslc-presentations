@@ -1,21 +1,30 @@
-#define LENGTH 15
-
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char* argv[]) {
-        int* numbers = malloc(sizeof(int) * LENGTH);
+int* arrayx2(int* input, int length) {
+    int* malloc = malloc(sizeof(int) * LENGTH);
 
-        numbers[0] = 1;
-        numbers[1] = 1;
+    for (int i = 0; i < length; i++) {
+        output[i] = 2 * input[i];
+    }
 
-        for (int i = 2; i < LENGTH; i++) {
-                numbers[i] = numbers[i-1] + numbers[i-2];
-        }
-
-        for (int i = 0; i < LENGTH; i++) {
-                printf("%5d\n", numbers[i]);
-        }
-
-        free(numbers);
+    return output;
 }
+
+int main(int argc, char* argv[]) {
+    int numbers[16];
+
+    for (int i = 0; i < 16; i++) {
+        numbers[i] = i;
+    }
+
+    int* output = arrayx2(numbers, 16);
+
+    for (int i = 0; i < 16; i++) {
+        print("%d\n", output[i]);
+    }
+
+    // this is the line you will forget.
+    free(output);
+}
+```

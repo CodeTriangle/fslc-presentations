@@ -67,35 +67,34 @@ Today's discussion will include:
     * OS expects you need to return it.
 * Use `malloc()` to allocate.
 * Use `free()` to free.
+
+---
+# Manual Memory Management Example
+```
+~~~cat manual.c
+* Easy, right?
+~~~
+```
+
+---
+# I lied about C
+* Admittedly, that last example is a bit contrived.
+* A function that returns a newly allocated array is a code smell.
+* I just needed a way to show the syntax.
+* So let's look at a real world example.
+* Open your manual to section 3, page `regex`.
+
+---
+# C Redux (Cdux)
 ```cpp
 #include <stdio.h>
-#include <stdlib.h>
+#include <regex.h>
 
-void arrayx2(int* input, int* output, int length) {
-    int i;
-    for (i = 0; i < length; i++) {
-        output[i] = 2 * input[i];
-    }
+int main(int argc, char *argv[]) {
+    
 }
 
-int main(int argc, char* argv[]) {
-        int* numbers = malloc(sizeof(int) * LENGTH);
-
-        numbers[0] = 1;
-        numbers[1] = 1;
-
-        for (int i = 2; i < LENGTH; i++) {
-                numbers[i] = numbers[i-1] + numbers[i-2];
-        }
-
-        for (int i = 0; i < LENGTH; i++) {
-                printf("%5d\n", numbers[i]);
-        }
-
-        free(numbers);
-}
 ```
-* Easy, right?
 
 ---
 # Manual Memory Management: Pros and Cons
