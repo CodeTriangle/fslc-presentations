@@ -1,8 +1,9 @@
 fn main() {
-    let ary = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-    ary.iter()
-        .map(|num| num * 2 + 1)
-        .filter(|odd| *odd < 7)
-        .for_each(|num| print!("{3>:num} "))
+    std::iter::repeat(1) // iterator that returns 1 infinitely
+        .take(50) // take the first 60 elements
+        .enumerate() // return pairs of (index, value)
+        .map(|(i, val)| i + val) // map to a sum
+        .filter(|i| *i % 5 == 4) // skip all elements that don't mod to 4
+        .map(|i| i * 2) // multiply all elements by two
+        .for_each(|num| print!("{num:3} ")) // print each
 }

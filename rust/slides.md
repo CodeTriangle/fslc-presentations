@@ -50,6 +50,7 @@ Today's discussion will include:
     * Null pointers
     * Data races
     * Concurrency
+    * Error Handling
 
 ---
 # Memory Management
@@ -240,22 +241,70 @@ nullity.rs
 ```
 
 ---
+# Error Handling
+* No one likes error handling.
+* C is possibly the worst.
+    * Errors are denoted by return values only.
+    * Return values can often be non-obvious.
+    * They're also very easy to ignore, which is bad.
+* `try`-`catch` sucks too.
+    * Sorry to say, but this is not a good pattern.
+    * Encourages overly broad `try` blocks that handle too much.
+
+## The Rusty Way
+* Rust's philosophy is as follows:
+    * Each function that **can** fail should be checked individually.
+    * If the function errors, we shouldn't have access to a returned object.
+
+---
+# Error Handling: Example
+* The `Result<T, E>` type, similar to `Option<T>`, is Rust's solution.
+* `Result<T, E>` stores either:
+    * `Ok(T)`: the call succeeded and the return value is contained within.
+    * `Err(E)`: the call failed and the error is contained within.
+
+```rust
+~~~xargs cat
+errors.rs
+~~~
+```
+
+---
+# Cool Features
+* Now is my favorite part of the presentation.
+* Here I just talk about more things Rust does really well.
+* Strap in, this may go a bit quick.
+
+---
+# Cool Features: Pattern Matching
+* Pattern matching is a newer concept.
+* Deconstruct a type, matching aspects of its structure.
+
+```rust
+~~~xargs cat
+patmat.rs
+~~~
+```
+
+---
+# Cool Features: Iterators
+* Iterators are not a new concept.
+* Elegant way to traverse ordered data.
+* In Rust, iterators enable performant functional programming.
+
+```rust
+~~~xargs cat
+iter.rs
+~~~
+```
+
+---
 # Really Cool Features
-* Iterators:
-    * Performant functional programming.
 * Reference-counted types
     * Do borrow checking at runtime.
 * Enum types
     * May encapsulate one of several types.
     * Keeps a flag for what types exist.
-* Option<T>
-    * Type that can be Some or None
-    * Safe version of nullable references.
-* Result<T, E>
-    * Rust's way to handle errors.
-    * Functions that may have an error return Result.
-    * Result is either Ok(T) or Err(E).
-    * Handle things differently depending on return.
 * Cargo
     * Rust's build system.
     * Automatically grab packages from crates.io.
