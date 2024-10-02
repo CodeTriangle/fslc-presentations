@@ -49,7 +49,6 @@ Today's discussion will include:
     * Memory management
     * Null pointers
     * Data races
-    * Concurrency
     * Error Handling
 
 ---
@@ -299,17 +298,33 @@ iter.rs
 ```
 
 ---
-# Really Cool Features
-* Reference-counted types
-    * Do borrow checking at runtime.
-* Enum types
-    * May encapsulate one of several types.
-    * Keeps a flag for what types exist.
-* Cargo
-    * Rust's build system.
-    * Automatically grab packages from crates.io.
-    * Easy to set up a project.
-    * Comes with a testing framework.
-* LSP support
-    * Write Rust in your favorite editor with completion.
-* And more!
+# Cool Features: Trait-Based Development
+* Rust is not a traditional object-oriented programming language.
+* Forgoes many features in favor of traits.
+* Traits have required functions and provided functions.
+
+```rust
+~~~xargs cat
+traits.rs
+~~~
+```
+
+---
+# Cool Features: Enums
+* Remember how `Option<T>` and `Result<T, E>` can hold one of two different types?
+* These types use Rust's enum feature, which lets you incorporate all kinds of data.
+* A more generic term is "tagged unions".
+
+```rust
+~~~xargs cat
+dinner.rs
+~~~
+```
+
+---
+# Cool Features: Smart Pointers
+* Remember how I was just crapping on garbage collection earlier?
+* Rust can do that too, in the form of reference counted shared pointers.
+* The type you want is `Rc<RefCell<T>>`:
+    * `Rc`: heap-allocated, reference-counted reference.
+    * `RefCell`: a cell that enforces borrowing at runtime.
