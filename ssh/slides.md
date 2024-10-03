@@ -20,6 +20,10 @@ ssh tress76.think.usu.edu -p 53531
 
 But don't you dare peek ahead. >:(
 
+## Also:
+
+Go grab a cheatsheet handout from the back of the room, if you haven't.
+
 ---
 # About this presentation
 Today we'll be talking about:
@@ -515,89 +519,6 @@ but didn't want to share a keyboard
 or move from our desks.
 
 ---
-# SSH server
-
-The OpenSSH server is often known
-by the command used to initiate it,
-`sshd`.
-
-If you want to set up an SSH server of your own,
-it is very easy.
-
-On most GNU+Linux distros:
-
-```bash
-sudo systemctl enable --now sshd # maybe ssh
-```
-
-(if your distro does not have `systemd`,
-you're on your own)
-
-On Windows:
-
-```powershell
-Start-Service sshd # or, if that doesn't work:
-Set-Service -Name sshd -StartupType 'Automatic'
-```
-
-On Mac:
-
-```bash
-sudo systemsetup -setremotelogin on # i think???
-```
-
-But be aware of the consequences!
-
----
-# SSH server
-
-## Warnings and advice
-
-Password authentication is enabled
-in the default configuration
-for most SSH servers.
-As discussed previously,
-this can be dangerous
-if someone gets their hands on your password.
-
-For that reason,
-I recommend editing your sshd config,
-which is traditionally found
-at `/etc/ssh/sshd_config`
-on Unix-like systems.
-You can disable it like so:
-
-```bash
-PasswordAuthentication no
-```
-
-If the device is truly a server,
-open to the whole internet,
-I would consider this
-an absolute necessity.
-
-If, however, your device is not likely
-to be widely available,
-for instance
-if you choose to enable an SSH server
-on your desktop or laptop,
-where it will only be visible
-to the handful of devices
-on your local area network,
-password authentication may be preferable
-as you might want to log in
-from various computers around your home
-without worrying about giving everything a key.
-
-I disable password authentication on my laptop
-when on campus
-just because I'm paranoid.
-
-Check out the man page
-to see what else you can do
-with `sshd`.
-
----
 # Port forwarding
 
 Oh yeah, now we're getting into the esoteric stuff.
@@ -699,6 +620,21 @@ because it is fast to set up temporarily
 and debug with.
 
 ---
+# Escape sequences
+
+While in an SSH session,
+press `Enter` then `~`.
+This initiates an escape sequence.
+
+The following escape sequences are defined:
+
+* `~.`: disconnect
+* `~#`: list forwarded connections
+* `~C`: add or remove forwarded connection
+* `~?`: list escape sequences
+* `~^Z`: background SSH
+
+---
 # Use as a git server
 
 Did you know that every computer with an SSH server
@@ -742,18 +678,84 @@ you probably just want to set up
 your own self hosted git like Gitea.)
 
 ---
-# Escape sequences
+# SSH server
 
-This is the most obscure topic I have for you today.
+The OpenSSH server is often known
+by the command used to initiate it,
+`sshd`.
 
-While in an SSH session,
-press `Enter` then `~`.
-This initiates an escape sequence.
+If you want to set up an SSH server of your own,
+it is very easy.
 
-The following escape sequences are defined:
+On most GNU+Linux distros:
 
-* `~.`: disconnect
-* `~#`: list forwarded connections
-* `~C`: add or remove forwarded connection
-* `~?`: list escape sequences
-* `~^Z`: background SSH
+```bash
+sudo systemctl enable --now sshd # maybe ssh
+```
+
+(if your distro does not have `systemd`,
+you're on your own)
+
+On Windows:
+
+```powershell
+Start-Service sshd # or, if that doesn't work:
+Set-Service -Name sshd -StartupType 'Automatic'
+```
+
+On Mac:
+
+```bash
+sudo systemsetup -setremotelogin on # i think???
+```
+
+But be aware of the consequences!
+
+---
+# SSH server
+
+## Warnings and advice
+
+Password authentication is enabled
+in the default configuration
+for most SSH servers.
+As discussed previously,
+this can be dangerous
+if someone gets their hands on your password.
+
+For that reason,
+I recommend editing your sshd config,
+which is traditionally found
+at `/etc/ssh/sshd_config`
+on Unix-like systems.
+You can disable it like so:
+
+```bash
+PasswordAuthentication no
+```
+
+If the device is truly a server,
+open to the whole internet,
+I would consider this
+an absolute necessity.
+
+If, however, your device is not likely
+to be widely available,
+for instance
+if you choose to enable an SSH server
+on your desktop or laptop,
+where it will only be visible
+to the handful of devices
+on your local area network,
+password authentication may be preferable
+as you might want to log in
+from various computers around your home
+without worrying about giving everything a key.
+
+I disable password authentication on my laptop
+when on campus
+just because I'm paranoid.
+
+Check out the man page
+to see what else you can do
+with `sshd`.
