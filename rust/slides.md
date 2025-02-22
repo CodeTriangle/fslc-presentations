@@ -197,17 +197,29 @@ raii.rs
     * C++ also kind of has it, but it's complicated.
 * Every resource is owned by one function.
     * Destructor is called when resource goes out of scope where it is owned.
-* When you pass resource R in:
+* When you pass resource R into a function:
     * Ownership is transferred to callee.
     * Caller cannot access R after call.
-    * This prevents data races as well.
-* When you pass reference to R:
-    * Ownership is not transferred.
+
+---
+# Ownership: Example
+```rust
+~~~xargs cat
+borrow_problem.rs
+~~~
+```
+
+---
+# References: But I needed that!
+* What if you need access to the original coords object?
+* That's when you would use a *reference*.
+* When you pass a reference to R into a function:
+    * Ownership is *not* transferred.
     * Callee "borrows" R while it is running.
     * Caller never loses ownership of R and can access R after call.
 
 ---
-# Ownership: Example
+# References: Example
 ```rust
 ~~~xargs cat
 borrow.rs
@@ -215,12 +227,37 @@ borrow.rs
 ```
 
 ---
+# Mutable References
+* By default, all references are immutable.
+* If you pass a reference into a function, it cannot be modified.
+* But what if you need to?
+* In this case, you would declare the reference as *mutable*.
+
+---
+# Mutable References: Example
+```rust
+~~~xargs cat
+borrow_mut.rs
+~~~
+```
+
+---
+# Mutable References: Safety
+* With this power, there are restrictions.
+* At any point during the program, for a specific resource, you can have either:
+  * one mutable reference to that resource, OR
+  * any number of immutable references
+* Other languages allowing this causes data races since multiple functions can modify the same resource, *possibly at the same time!*
+
+---
 # Nullity
 * Null pointers are a massive pain.
 * A common pattern is to return a null pointer or reference on failed operation.
 * This is an extremely easy step to forget.
 * According to Sir Tony Hoare, credited with the creation of ALGOL's type system:
+
 > [The null reference] has led to innumerable errors, vulnerabilities, and system crashes, which have probably caused a billion dollars of pain and damage in the last forty years.
+
 * The answer turns out to be pretty easy.
 * Just have references that can't be null!
 * Rust has no nullable references.
