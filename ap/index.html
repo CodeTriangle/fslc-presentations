@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Archipelago Presentation</title>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/reset.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/reveal.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/theme/black.css" id="theme" />
+	<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/plugin/highlight/monokai.css" id="theme" />-->
+	<style>
+		:root {
+			--r-heading-text-transform: none;
+			--r-heading-font: "Londrina Solid";
+			--r-heading-font-weight: 300;
+			--r-heading-color: #dfd;
+			--r-main-font: "PT Sans";
+			--r-main-color: #dfd;
+			--r-link-color: #8e8;
+			--r-link-color-hover: #6b6;
+			--r-background-color: #0f5177;
+		}
+
+		.graph-explain {
+			display: grid;
+			grid-template-columns: 60% 40%;
+			width: 100%;
+		}
+
+		.graph-explain .mermaid {
+			width: 100%;
+			grid-column: 1;
+		}
+
+		.graph-explain .explain {
+			width: 100%;
+			grid-column: 2;
+			font-size: 0.7em;
+		}
+
+		.flowchart .available rect {
+			fill: #8eb !important;
+			stroke: #371 !important;
+		}
+
+		.flowchart .unavailable rect {
+			fill: #e78 !important;
+			stroke: #711 !important;
+		}
+	</style>
+</head>
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section id="title">
+				<h1 class="r-fit-text">Archipelago</h1>
+				<h2>The Multi-Game, Multiworld Randomizer</h2>
+				<p>Presented by Richard Snider (Trongle)</p>
+			</section>
+
+			<section>
+				<section id="agenda">
+					<h1>Today's agenda</h1>
+					<ul>
+						<li class="fragment fade-up">
+							The history of game randomizers
+						</li>
+						<li class="fragment fade-up">
+							How randomizers work under the hood
+						</li>
+						<li class="fragment fade-up">
+							The Archipelago project and multiworld randomization
+						</li>
+						<li class="fragment fade-up">
+							Live demo of Archipelago
+						</li>
+						<li class="fragment fade-up">
+							Internals of Archipelago
+						</li>
+						<li class="fragment fade-up">
+							Implementing a game in Archipelago (using CrossCode as a case study)
+						</li>
+					</ul>
+				</section>
+
+				<section id="open-source-info">
+					<h1>Oh, and by the way</h1>
+					<p>
+						This presentation is open source.
+						As is the program I'm using to present it (reveal.js).
+						As always, you can find information about this
+						and my other presentations
+						on my GitHub.
+					</p>
+					<p><a href="https://github.com/CodeTriangle/fslc-presentations" target="_blank">
+						https://github.com/CodeTriangle/fslc-presentations
+					</a></p>
+				</section>
+			</section>
+
+			<section>
+				<section id="rando-knowledge-check">
+					<h1>Quick knowledge check</h1>
+					<ul>
+						<li class="fragment fade-up">
+							How many of you have heard of randomizers?
+						</li>
+						<li class="fragment fade-up">
+							How many of you have watched someone play a randomizer?
+						</li>
+						<li class="fragment fade-up">
+							How many of you have played a randomizer?
+						</li>
+						<li class="fragment fade-up">
+							How many of you have <em>not</em> heard of a randomizer?
+						</li>
+						<li class="fragment fade-up">
+							Who's ready to hear me explain all of this anyway?
+						</li>
+					</ul>
+				</section>
+
+				<section id="rando-origins">
+					<h1>Origins of randomization</h1>
+					<ul>
+						<li class="fragment fade-up">
+							Imagine this: you're a nerd.
+						</li>
+						<li class="fragment fade-up">
+							You have a favorite game
+							that you've played too many times to count.
+						</li>
+						<li class="fragment fade-up">
+							You know everything about this game
+							to the point that it's almost not fun to play.
+						</li>
+						<li class="fragment fade-up">
+							You want to experience this game afresh,
+							applying your knowledge of the game.
+						</li>
+						<li class="fragment fade-up">
+							This is the situation
+							that led to the first randomizers.
+						</li>
+					</ul>
+				</section>
+
+				<section id="rando-components">
+					<h1>The two phases</h1>
+					<p class="fragment fade-up">
+						Randomizers have two primary components:
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							The randomization process,
+							which happens ahead-of-time
+							and produces a randomized game to play.
+						</li>
+						<li class="fragment fade-up">
+							The game mod,
+							which makes it possible
+							to play the game randomized.
+						</li>
+					</ul>
+					<p class="fragment fade-up">
+						Let's take a look at both of them.
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section id="randomization-phase">
+					<h2>Phase One:</h2>
+					<h1 class="r-fit-text">Randomization</h1>
+				</section>
+
+				<section id="rando-explanation">
+					<h1>The randomization process</h1>
+					<p class="fragment fade-up">
+						The idea is simple:
+					</p>
+					<ol>
+						<li class="fragment fade-up">
+							Take a game you've played before.
+						</li>
+						<li class="fragment fade-up">
+							Remove every item in that game.
+						</li>
+						<li class="fragment fade-up">
+							Place all those items in a pool.
+						</li>
+						<li class="fragment fade-up">
+							Replace all the items in random locations.
+						</li>
+						<li class="fragment fade-up">
+							Play the game.
+						</li>
+					</ol>
+				</section>
+
+				<section id="rando-problems">
+					<h1>But it's not that simple!</h1>
+					<p class="fragment fade-up">
+						Randomizers have to contend with a few simple facts
+						that make development just a bit more annoying.
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							In most games, you encounter items
+							that let you progress through the game.
+							What happens when an items is accidentally placed
+							<em>behind</em> a gate that it unlocks?
+							<ul>
+								<li class="fragment fade-up">
+									To combat this, we use "logic" systems
+									that describe when locations become available
+									and ensure that you will always be able
+									to make progress (More on this later).
+								</li>
+							</ul>
+						</li>
+						<li class="fragment fade-up">
+							Games generally do not account for players
+							having a different set of items from the ones
+							that they are supposed to have at that point.
+							<ul>
+								<li class="fragment fade-up">
+									Because of this, randomizers often have to patch the game
+									to allow for more seamless sequence breaking.
+								</li>
+							</ul>
+						</li>
+						<li class="fragment fade-up">
+							Most games are proprietary software.
+							<ul>
+								<li class="fragment fade-up">
+									Randomizers must be carefully engineered
+									so that they operate
+									only on legally obtained data
+									and do not disemminate game data themselves.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+			</section>
+
+			<section>
+				<section id="mod-phase">
+					<h2>Phase Two:</h2>
+					<h1 class="r-fit-text">Game Mods</h1>
+				</section>
+
+				<section id="mod-works">
+					<h1>So how do they work?</h1>
+					<p class="fragment fade-up">
+						There are a few main ways to make a randomizer.
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							For randomizers of retro games,
+							the approach is often <strong>ROM patching</strong>.
+						</li>
+						<li class="fragment fade-up">
+							For randomizers of modern games
+							with modding support,
+							they are implemented as <strong>game mods</strong>.
+						</li>
+						<li class="fragment fade-up">
+							For randomizers of modern games
+							without modding support,
+							you often have to resort to
+							<strong>on-the-fly memory editing</strong>
+							(will not be covered here).
+						</li>
+						<li class="fragment fade-up">
+							For randomizers of open-source games,
+							produce a modified build of your own
+							based on the original,
+							but with randomization added.
+						</li>
+						<li class="fragment fade-up">
+							Probably a few more idk I don't know everything.
+						</li>
+					</ul>
+				</section>
+			</section>
+
+			<section>
+				<section id="injection-intro">
+					<h1 class="r-fit-text">Code Injection</h1>
+					<p>
+						I'm going to talk about this one first
+						because it's easier.
+					</p>
+				</section>
+
+				<section id="injection-simple">
+					<h1>What is injection?</h1>
+					<ul>
+						<li class="fragment fade-up">
+							Code injection is how most mods
+							form modern games work
+							under the hood
+							(other than purely cosmetic mods
+							or mods that just replace game files).
+						</li>
+						<li class="fragment fade-up">
+							Works by hooking into a defined function
+							and running your own code instead.
+						</li>
+						<li class="fragment fade-up">
+							Works best on dynamic languages
+							whose runtimes can be easily manipulated
+							(think Java, Python, C#).
+						</li>
+						<li class="fragment fade-up">
+							If the game officially includes modding support,
+							this functionality will be provided
+							along with an official API.
+						</li>
+						<li class="fragment fade-up">
+							If not, you might have to hijack the game's runtime
+							by replacing a DLL with a "hacked" version
+							that loads mod code.
+						</li>
+					</ul>
+				</section>
+
+				<section id="injection-randos">
+					<h1>How this works with randomizers</h1>
+					<ul>
+						<li class="fragment fade-up">
+							You can often perform randomization
+							in place, while the game is running.
+							In this phase,
+							generate a lookup table
+							of locations and items to give.
+						</li>
+						<li class="fragment fade-up">
+							While the player is in-game,
+							whenever they find an item,
+							intercept the function
+							where items are added
+							to the player's inventory.
+						</li>
+						<li class="fragment fade-up">
+							Prevent the game
+							from giving the item that it would
+							in a vanilla playthrough.
+						</li>
+						<li class="fragment fade-up">
+							Consult the table
+							of randomized items
+							generated earlier
+							and give the player
+							that item instead.
+						</li>
+					</ul>
+				</section>
+
+				<section id="injection-tools">
+					<h1>Common tools used for injection</h1>
+					<p style="font-size: 0.7em">
+						(varies based on the game engine used)
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							<strong>Unity</strong>:
+							<a href="https://github.com/BepInEx/BepInEx">BepInEx</a>,
+							a code injector for C# runtimes
+							that currently only has stable support
+							for Unity games.
+						</li>
+						<li class="fragment fade-up">
+							<strong>Godot</strong>:
+							<a href="https://github.com/GodotModding/godot-mod-loader">Godot ModLoader</a>,
+							a generic ModLoader
+							that works with <em>any game made in Godot</em>
+							(see
+							<a href="https://github.com/GodotModding">this list</a>
+							for more resources).
+						</li>
+						<li class="fragment fade-up">
+							<strong>Unreal</strong>:
+							<a href="https://github.com/Buckminsterfullerene02/UE-Modding-Tools#loaders">many; here's a list</a>.
+						</li>
+						<li class="fragment fade-up">
+							Some games, such as
+							<a href="https://www.teamfortress.com/post.php?id=238809">Team Fortress 2</a>,
+							<a href="https://vortexbuffer.com/synchrony/docs/">Crypt of the Necrodancer</a>, and
+							<a href="https://lua-api.factorio.com/latest/">Factorio</a>
+							have official modding APIs
+							for your perusal.
+						</li>
+					</ul>
+				</section>
+			</section>
+
+			<section>
+				<section id="rom-patch-intro">
+					<h1 class="r-fit-text">ROM Patching</h1>
+				</section>
+				<section id="rom-patching">
+					<h1>What is a ROM?</h1>
+					<p class="fragment fade-up">
+						Let's talk a little bit about
+						how retro games load up.
+					</p>
+					<p class="fragment fade-up">
+						Unlike today's consoles,
+						retro consoles did not have
+						proper operating systems
+						which could load the information
+						on a cartridge.
+					</p>
+					<p class="fragment fade-up">
+						Instead, the cartridges themseles
+						contain a lot of fascinating hardware
+						that can insert additional memory
+						into the system.
+					</p>
+					<p class="fragment fade-up">
+						This memory is read-only
+						since the code and assets of the game
+						should not be edited
+						and doing so would be expensive anyway.
+						Thus the term for the contents of a cartridge
+						is "Read-Only Memory" or ROM.
+					</p>
+					<p class="fragment fade-up">
+						Emulators take these ROMs
+						and mount them into the virtual machine's memory
+						as a virtual cartridge.
+					</p>
+					<p class="fragment fade-up">
+						Certain games also mount read-write RAM
+						using an onboard battery.
+					</p>
+				</section>
+
+				<section id="roms-emulation">
+					<h1>Modifying the ROM</h1>
+					<p class="fragment fade-up">
+						To create mods for cartridge games,
+						a new ROM must be produced ahead-of-time
+						on another machine,
+						thus creating a new virtual cartridge
+						with modified behavior.
+					</p>
+					<p class="fragment fade-up">
+						Adept programmers can take a game
+						and write their own modifications,
+						thus turning it into a different game entirely
+						(also known as ROM hacking).
+					</p>
+					<p class="fragment fade-up">
+						For cartridge games,
+						a randomizer can read in a ROM,
+						make modifications to it,
+						randomizing any aspects of the game
+						that it wants to,
+						then spit it out as a new ROM.
+					</p>
+				</section>
+
+				<section id="roms-direct-memory">
+					<h1>How items work in ROMs</h1>
+					<p class="fragment fade-up">
+						Recall that ROMs are loaded
+						directly into the memory map of the console.
+						Every "thing" in the game
+						has a defined static memory address
+						that it can be found at.
+					</p>
+					<p class="fragment fade-up">
+						So let's say that in your game,
+						there is a byte that represents
+						whether the player has a sword
+						located at a certain memory address.
+						Every time the player tries to swing their sword,
+						you check this value to ensure that they are able to.
+					</p>
+					<p class="fragment fade-up">
+						Now, you also need certain memory addresses
+						to represent whether the player has retrieved
+						the items found at certain locations.
+					</p>
+				</section>
+
+				<section id="roms-direct-memory-2">
+					<h1>How to create a randomized ROM</h1>
+					<p class="fragment fade-up">
+						Programmers in the 1980s
+						working with limited space
+						often made the smart choice
+						to represent both of these facts
+						using the same memory address.
+					</p>
+					<p class="fragment fade-up">
+						So, to simplify a little bit,
+						the goal is to replace every reference
+						to certain flags
+						with those for different flags.
+						And boom, you have a randomizer.
+					</p>
+					<p class="fragment fade-up" style="font-size:0.7em">
+						I will take questions at this point
+						but I'm not confident in my ability
+						to answer them.
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section id="logic-intro">
+					<h1 class="r-fit-text">Game Logic</h1>
+					<p>One last topic before we get to Archipelago itself</p>
+				</section>
+
+				<section id="logic-explanation">
+					<h1>The problem</h1>
+					<p class="fragment fade-up">
+						Almost no games just give you
+						all the tools you need
+						to beat the game at the start
+						(because that would be stupid).
+					</p>
+					<p class="fragment fade-up">
+						Imagine there is a chest
+						behind a locked door.
+						If you're not careful
+						you might end up placing the key
+						behind the door,
+						leading to an unsolvable game.
+					</p>
+					<h1>The solution</h1>
+					<p class="fragment fade-up">
+						We have to model the game's logic,
+						that is, what items are required
+						to get to each location.
+					</p>
+					<p class="fragment fade-up">
+						For this we get to use trees!
+						Remember trees,
+						from your data structures class?
+						We get to <em>finally</em> use those!
+					</p>
+				</section>
+
+				<section id="logic-example" class="diagram-slide">
+					<h1>An example logic graph</h1>
+					<div class="mermaid fragment fade-up">
+						<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2);
+	S ==> OW3(Overworld Item 3);
+	L ==> D1(Dungeon Item 1);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2);
+	G ==> D3(Dungeon Item 3);
+	L ==> D4(Dungeon Item 4);
+						</pre>
+					</div>
+
+					<p class="fragment fade-up">
+						In this example,
+						rectangular boxes represent conditions
+						and rounded rectangular boxes represent locations.
+					</p>
+				</section>
+
+				<section id="logic-algorithm">
+					<h1>The fill algorithm</h1>
+					<p class="fragment fade-up">
+						The algorithm
+						by which items are safely placed
+						into the locations
+						(simplified).
+					</p>
+					<ol>
+						<li class="fragment fade-up">
+							Place all items into a list
+							and shuffle it.
+						</li>
+						<li class="fragment fade-up">
+							Scan all of the locations
+							and find out which are accessible
+							based on the items the player has.
+							Add all such locations to a list.
+						</li>
+						<li class="fragment fade-up">
+							Take the first item
+							from the list of items
+							and place it at an accessible location.
+						</li>
+						<li class="fragment fade-up">
+							Add the placed item
+							to the set of obtained items.
+						</li>
+						<li class="fragment fade-up">
+							Repeat from (2)
+							until all locations are filled.
+						</li>
+					</ol>
+				</section>
+
+				<section id="logic-clarification" style="font-size: 0.85em">
+					<h1>Some clarifications on fill</h1>
+					<p class="fragment fade-up">
+						This algorithm is theoretically fine
+						but practically, it would be very slow
+						and might actually <em>fail to fill</em>.
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							First off, not all items are logically relevant.
+							Think of all the chests you've opened in games
+							that just have money in them.
+							<ul>
+								<li class="fragment fade-up">
+									These do not affect
+									whether you can reach any locations
+									so we don't have to rescan
+									the list of locations
+									after collecting them.
+								</li>
+								<li class="fragment fade-up">
+									Because of this,
+									randomizers do fill in two stages:
+									<strong class="fragment">progressive</strong> fill
+									and <strong class="fragment">remaining </strong>fill.
+								</li>
+								<li class="fragment fade-up">
+									Progressive fill operates exclusively on
+									items that are logically important,
+									while remaining fill operates on those that aren't.
+								</li>
+							</ul>
+						</li>
+						<li class="fragment fade-up">
+							Depending on the order of the randomized item list,
+							it is possible to enter a situation
+							where <em>all locations have been filled</em>
+							but certain locations are still inaccessible.
+							<ul>
+								<li class="fragment fade-up">
+									Fill algorithms fix this by adding
+									an additional step to the process
+									where items will be swapped with each other
+									until progress can be successfully made
+									or there are no more options to check.
+								</li>
+								<li class="fragment fade-up">
+									Notably, this only applies to progressive fill;
+									it would make no difference for remaining fill.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section id="logic-walkthrough">
+					<h1>A walkthrough of an example fill</h1>
+					<div class="r-stack">
+						<div class="graph-explain fragment fade-in-then-out">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: none);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: none);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: none);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: none);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: none);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: none);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: none);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L unavailable
+class G unavailable
+class D1 unavailable
+class D2 unavailable
+class D3 unavailable
+class D4 unavailable
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li>Sword</li>
+									<li>Dungeon Map</li>
+									<li>Key</li>
+									<li>Hoverboard</li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li>Coin</li>
+									<li>Recovery Heart</li>
+									<li>Sandwich</li>
+								</ul>
+								<p>Placing <strong>Sword</strong> at <strong>OW1</strong></p>
+							</div>
+						</div>
+
+						<div class="graph-explain fragment fade-in-then-out">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: Sword);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: none);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: none);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: none);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: none);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: none);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: none);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L unavailable
+class G unavailable
+class D1 unavailable
+class D2 unavailable
+class D3 unavailable
+class D4 unavailable
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li><strike>Sword</strike></li>
+									<li>Dungeon Map</li>
+									<li>Key</li>
+									<li>Hoverboard</li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li>Coin</li>
+									<li>Recovery Heart</li>
+									<li>Sandwich</li>
+								</ul>
+								<p>Placing <strong>Dungeon Map</strong> at <strong>OW3</strong></p>
+							</div>
+						</div>
+
+						<div class="graph-explain fragment fade-in-then-out">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: Sword);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: none);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: Map);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: none);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: none);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: none);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: none);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L unavailable
+class G unavailable
+class D1 unavailable
+class D2 unavailable
+class D3 unavailable
+class D4 unavailable
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li><strike>Sword</strike></li>
+									<li><strike>Dungeon Map</strike></li>
+									<li>Key</li>
+									<li>Hoverboard</li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li>Coin</li>
+									<li>Recovery Heart</li>
+									<li>Sandwich</li>
+								</ul>
+								<p>Placing <strong>Key</strong> at <strong>OW2</strong></p>
+							</div>
+						</div>
+
+						<div class="graph-explain fragment fade-in-then-out">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: Sword);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: Key);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: Map);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: none);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: none);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: none);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: none);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L available
+class G unavailable
+class D1 available
+class D2 unavailable
+class D3 unavailable
+class D4 available
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li><strike>Sword</strike></li>
+									<li><strike>Dungeon Map</strike></li>
+									<li><strike>Key</strike></li>
+									<li>Hoverboard</li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li>Coin</li>
+									<li>Recovery Heart</li>
+									<li>Sandwich</li>
+								</ul>
+								<p>Placing <strong>Hoverboard</strong> at <strong>D4</strong></p>
+							</div>
+						</div>
+
+						<div class="graph-explain fragment fade-in-then-out">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: Sword);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: Key);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: Map);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: none);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: none);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: none);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: Board);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L available
+class G available
+class D1 available
+class D2 available
+class D3 available
+class D4 available
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li><strike>Sword</strike></li>
+									<li><strike>Dungeon Map</strike></li>
+									<li><strike>Key</strike></li>
+									<li><strike>Hoverboard</strike></li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li>Coin</li>
+									<li>Recovery Heart</li>
+									<li>Sandwich</li>
+								</ul>
+								<p>Placing <strong>remaining items</strong></p>
+							</div>
+						</div>
+
+						<div class="graph-explain fragment fade-in">
+							<div class="mermaid">
+								<pre>
+graph LR;
+	S[Start] ==> OW1(Overworld Item 1&lt;br/&gt;item: Sword);
+	S ==> L[Locked Door&lt;br/&gt;needs Key];
+	S ==> OW2(Overworld Item 2&lt;br/&gt;item: Key);
+	S ==> OW3(Overworld Item 3&lt;br/&gt;item: Map);
+	L ==> D1(Dungeon Item 1&lt;br/&gt;item: Coin);
+	L ==> G[Uncrossable Gap&lt;br/&gt;needs Hoverboard];
+	G ==> D2(Dungeon Item 2&lt;br/&gt;item: Heart);
+	G ==> D3(Dungeon Item 3&lt;br/&gt;item: Sandwich);
+	L ==> D4(Dungeon Item 4&lt;br/&gt;item: Board);
+
+class S available
+class OW1 available
+class OW2 available
+class OW3 available
+class L available
+class G available
+class D1 available
+class D2 available
+class D3 available
+class D4 available
+								</pre>
+							</div>
+							<div class="explain">
+								<h3>Progressive items:</h3>
+								<ul>
+									<li><strike>Sword</strike></li>
+									<li><strike>Dungeon Map</strike></li>
+									<li><strike>Key</strike></li>
+									<li><strike>Hoverboard</strike></li>
+								</ul>
+								<h3>Filler items:</h3>
+								<ul>
+									<li><strike>Coin</strike></li>
+									<li><strike>Recovery Heart</strike></li>
+									<li><strike>Sandwich</strike></li>
+								</ul>
+								<p>Done!</p>
+							</div>
+						</div>
+					</div>
+				</section>
+			</section>
+
+			<section id="rando-examples">
+				<h1>Some notable randomizers</h1>
+				<ul>
+					<li class="fragment fade-up">
+						<strong><a href="https://alttpr.com/" target="_blank"><em>A Link to the Past</em> Randomizer</a></strong>:
+						One of the oldest randomizers available.
+						Still run today
+						and used as a basis for other projects.
+					</li>
+					<li class="fragment fade-up">
+						<strong><a href="https://randommetroidsolver.pythonanywhere.com/" target="_blank">VARIA</a></strong>:
+						For <em>Super Metroid</em>.
+						Has randomization for both items and areas.
+						Allows for glitched logic
+						which can adapt to whichever tricks you know.
+					</li>
+					<li class="fragment fade-up">
+						<strong><a href="https://ootrandomizer.com/" target="_blank"><em>Ocarina of Time</em> Randomizer</a></strong>:
+						Another randomizer with a storied history.
+						Very high quality randomizer
+						with plenty of options
+						to customize your playthrough.
+					</li>
+					<li class="fragment fade-up">
+						<strong><a href="https://github.com/homothetyhk/RandomizerMod" target="_blank"><em>Hollow Knight</em> RandomizerMod</a></strong>:
+						Randomizer for the incredible indie game
+						whose sequel is definitely coming soon, guys.
+						Innovates in the space by adding new mechanics entirely.
+					</li>
+					<li class="fragment fade-up">
+						<strong><a href="http://finalfantasyrandomizer.com/" target="_blank"><em>Final Fantasy 1</em> Randomizer</a></strong>:
+						I don't know much about this one,
+						but it has a strong community
+						and plenty of options.
+					</li>
+					<li class="fragment fade-up">
+						<strong><a href="https://samus.link/" target="_blank">SMZ3</a></strong>:
+						A crossover randomizer
+						between <em>Super Metroid</em> and
+						<em>A Link to the Past</em>.
+						Works by placing the two games
+						onto the same virtual cartridge.
+					</li>
+				</ul>
+			</section>
+
+			<section id="ap-transition">
+				<p>With that context, on to the main event...</p>
+			</section>
+
+			<section>
+				<section id="archipelago">
+					<h1 class="r-fit-text">Archipelago</h1>
+					<h2>The Multi-Game, Multiworld Randomizer</h2>
+					<p>Wait, didn't we already have this title card?</p>
+				</section>
+
+				<section id="archipelago-rando-diff">
+					<h1>How is the first phase different?</h1>
+					<p class="fragment fade-up">
+						Here's Archipelago's randomization process:
+					</p>
+					<ol>
+						<li class="fragment fade-up">
+							Take a collection of randomizer configurations
+							(this can include multiple instances
+							of the same game).
+						</li>
+						<li class="fragment fade-up">
+							Remove every item in every game.
+						</li>
+						<li class="fragment fade-up">
+							Place all the items
+							from all the games
+							into a pool.
+						</li>
+						<li class="fragment fade-up">
+							Replace all the items in random locations,
+							<em>potentially in different games</em>.
+						</li>
+						<li class="fragment fade-up">
+							All players play their games,
+							<em>potentially sending items to each other</em>.
+						</li>
+					</ol>
+				</section>
+
+				<section id="archipelago-mod-diff">
+					<h1>How is the second phase different?</h1>
+					<p class="fragment fade-up">
+						Generally, if a game already has
+						a singleplayer randomizer,
+						the multiworld version
+						can piggyback on that work.
+						It just has to add the Archipelago-specific bits.
+					</p>
+					<p class="fragment fade-up">
+						For clarity, the randomization has to be done
+						by Archipelago;
+						there's no way around that.
+						But the game mod can be based on the original's code.
+					</p>
+					<p class="fragment fade-up">
+						The biggest change in the modding process
+						is that Archipelago games need a network connection
+						so that they can send and receive items.
+					</p>
+					<ul>
+						<li class="fragment fade-up">
+							For modern games, this can often be added
+							to the mod itself
+							by including a websockets library.
+						</li>
+						<li class="fragment fade-up">
+							For ROM-based games, this must be done
+							using an external program
+							that reads the emulator's memory
+							and sends network signals
+							based on that data.
+						</li>
+					</ul>
+				</section>
+
+				<section id="archipelago-tech-demo">
+					<p>
+						Okay! Time for a tech demo.
+					</p>
+					<p>
+						I will be using the official site at
+						<a href="https://archipelago.gg" target="_blank">archipelago.gg</a>
+						to show this off.
+					</p>
+				</section>
+
+				<section id="archipelago-finish">
+					<p>
+						I hope you enjoyed that. I think this is really cool.
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section id="crosscode-intro">
+					<p>Introducing...</p>
+					<h1 class="r-fit-text">CrossCode</h1>
+				</section>
+
+				<section id="crosscode-explanation">
+					<h1>What is CrossCode?</h1>
+					<p class="fragment fade-up">
+						CrossCode is a retro-inspired 2D Action RPG
+						set in the distant future,
+						combining 16-bit SNES-style graphics
+						with butter-smooth physics,
+						a fast-paced combat system,
+						and engaging puzzle mechanics,
+						served with a gripping sci-fi story.
+					</p>
+					<p class="fragment fade-up">
+						CrossCode takes heavy inspiration
+						from various Zelda games
+						(which, as you may have noticed,
+						are popular choices to randomize).
+						In August 2023, I decided to start
+						creating the Archipelago implementation for CrossCode
+						because I thought it was a natural fit.
+					</p>
+					<p class="fragment fade-up">
+						You'd better strap in
+						because I'm going to talk about a lot of things.
+					</p>
+					<p class="fragment fade-up" style="font-size: 0.8em">
+						This presentation contains <strong>no major spoilers</strong> for CrossCode.
+						I highly recommend you play it yourself;
+						it goes on sale for like $6 all the time.
+					</p>
+				</section>
+
+				<section id="crosscode-unsupported">
+					<p>
+						Because CrossCode is an "unsupported" game
+						(meaning it isn't in the primary Archipelago repository)
+						the process to generate a game with CrossCode included
+						is a bit more manual.
+					</p>
+					<p>
+						We're going to have a tech demo about it.
+					</p>
+				</section>
+
+				<section id="crosscode-python">
+					<h1>The Archipelago code</h1>
+					<p class="fragment fade-up">
+						Archipelago is a python project
+						and all its randomization code
+						is written in python.
+					</p>
+					<p class="fragment fade-up">
+						The Archipelago system
+						looks for game implementations
+						(which I will now be calling "worlds")
+						in the <code>worlds</code> module
+						in the project root.
+						Any submodule of <code>worlds</code>
+						that contains code that extends
+						the <code>AutoWorld</code> class
+						is loaded as a possible game
+						to randomize.
+					</p>
+					<p class="fragment fade-up">
+						At several parts in the randomization process
+						certain functions will be called
+						in the world class
+						for every slot that is to be generated.
+					</p>
+					<p class="fragment fade-up">
+						Let's look at CrossCode's world
+						to show some of this off.
+					</p>
+				</section>
+
+				<section id="crosscode-js">
+					<h1>The mod</h1>
+					<p class="fragment fade-up">
+						Modding CrossCode turns out to be stupidly easy.
+						Did you see that "HTML5" banner?
+						That's because CrossCode is written in JavaScript
+						for the HTML canvas API.
+						Which means...
+						<span class="fragment">we can just open the DevTools in-game.</span>
+					</p>
+					<p class="fragment fade-up">
+						And because JavaScript cannot be compiled,
+						the entire source code for the game
+						is available for to look at
+						(just in a minified form).
+					</p>
+					<p class="fragment fade-up">
+						CrossCode was written between 2013 and 2017
+						using a heavily modified version
+						of the open-source
+						<a href="https://impactjs.com/">ImpactJS</a>
+						game engine,
+						which is even older.
+					</p>
+					<p class="fragment fade-up">
+						Even though the developers
+						would have had access to modern JavaScript features
+						for a good portion of the game creation process,
+						none of these features are used
+						so the JavaScript is archaic and weird.
+					</p>
+				</section>
+
+				<section id="crosscode-modding">
+					<h1>CrossCode modding tactics</h1>
+					<p class="fragment fade-up">
+						In ImpactJS, classes are modeled as functions
+						which can be called
+						as if using a constructor.
+						But really, all the class data is stored
+						<em>on the function object itself</em>,
+					</p>
+					<p class="fragment fade-up">
+						To subclass a class,
+						you can call <code>className.extend({...})</code>
+						where the object contains properties
+						and functions that exist on the subclass.
+					</p>
+					<p class="fragment fade-up">
+						ImpactJS exposes a method to perform injection
+						which uses a similar interface,
+						<code>className.inject({...})</code>,
+						where the properties and functions
+						of the original are <em>overridden</em>
+						by the injected object.
+					</p>
+				</section>
+
+				<section id="crosscode-ws">
+					<h1>Adding network support</h1>
+					<p class="fragment fade-up">
+						To add support for the Archipelago network protocol
+						I just had to include <code>archipelago.js</code>,
+						a library that implements the protocol in JavaScript
+						using the native <code>WebSocket</code> implementation.
+					</p>
+					<p class="fragment fade-up">
+						I also could have implemented it myself.
+						The protocol is open-source
+						and documented <a href="https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/network%20protocol.md" target="_blank">here</a>.
+					</p>
+					<p class="fragment fade-up">
+						The gist of it is, I send a <code>Connect</code> packet,
+						then wait for the <code>Connected</code> packet
+						to confirm that I'm in the room.
+						Once I receive that, I enter the game proper.
+					</p>
+					<p class="fragment fade-up">
+						The functions for opening a chest,
+						completing a quest,
+						talking to certain NPCs,
+						and buying items from the shop
+						are all injected
+						to send Archipelago items instead.
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section id="more-stuff">
+					<h1>More fun stuff</h1>
+					<p>
+						Because Archipelago is an open-source project,
+						it is possible to do a lot with it.
+						Here are some highlights
+						of the community's creativity.
+					</p>
+				</section>
+
+				<section id="trackers">
+					<h1>Trackers</h1>
+					<ul>
+						<li class="fragment fade-up">
+							<a href="https://github.com/black-sliver/PopTracker/"><strong>PopTracker</strong></a>:
+							a program built to track a variety of games
+							with support for the Archipelago protocol
+							(requires custom "package" but follows logic)
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://drawesome4333.github.io/ap-tracker/"><strong>Dr. Awesome's Checklist Tracker</strong></a>:
+							a web app that can track any Archipelago game
+							with support for displaying locations
+							in convenient groups.
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://github.com/FarisTheAncient/Archipelago/releases/tag/Tracker_v0.1.16RC1"><strong>Universal Tracker</strong></a>:
+							a program that hijacks the generation process
+							to instead update as a tracker
+							rather than a generator.
+						</li>
+					</ul>
+				</section>
+
+				<section id="ap-games">
+					<h1>Original Archipelago Games</h1>
+					<ul>
+						<li class="fragment fade-up">
+							<a href="https://clique.pharware.com/"><strong>Clique</strong></a>:
+							the best game ever made.
+							you click a button and release a check.
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://github.com/APSudoku/APSudoku"><strong>BK Sudoku</strong></a>:
+							a "hint game"
+							which can connect to any game slot.
+							Instead of playing the normal game,
+							you just play sudoku and gain hints.
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://github.com/airbreather/Autopelago"><strong>Auto Rat Game</strong></a>:
+							a game that plays itself!
+							You watch a rat move through an enclosure
+							and collect checks all by itself.
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://github.com/airbreather/Autopelago"><strong>Slow Release Client</strong></a>:
+							a game that releases a single check
+							every set time interval.
+						</li>
+					</ul>
+				</section>
+			</section>
+
+			<section id="fslc-async">
+				<h1>So who wants to play?</h1>
+				<p>
+					I'd like to get an async set up for us
+					if there is enough interest
+					in the idea.
+				</p>
+				<p class="fragment fade-up">
+					If there's enough interest
+					I'll start drafting up rules and suggestions
+					for whoever is interested in playing.
+				</p>
+			</section>
+
+			<section id="end">
+				<h1>The end</h1>
+				<p>Here are some links:</p>
+				<img src="apgg.png" style="width: 30%">
+				<img src="gh.png" style="width: 30%">
+			</section>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/reveal.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin@11.4.1/plugin/mermaid/mermaid.js"></script>
+	<script>
+		Reveal.initialize({
+			hash: true,
+
+			width: 1600,
+			height: 900,
+
+			controlsTutorial: false,
+
+			progress: false,
+
+			// mermaid initialize config
+			mermaid: {
+				// flowchart: {
+				// 	curve: 'linear',
+				// },
+			},
+
+			// this plugin config
+			// mermaidPlugin: {
+			//	 beforeRender(el) {
+			//		 console.log(el);
+			//		 // if return false this element will not call mermaid render
+			//	 },
+			//
+			//	 afterRender(el) {
+			//		 console.log(el);
+			//	 },
+			// },
+
+			plugins: [RevealMermaid],
+		});
+	</script>
+</body>
