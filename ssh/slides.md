@@ -1,6 +1,6 @@
 ---
 author: Richard Snider (Trongle)
-date: 2 October 2024
+date: 16 September 2025
 ---
 # Using OpenSSH like a pro
 Welcome to my presentation!
@@ -136,7 +136,7 @@ ssh fslc@allmight.think.usu.edu "cat trongle.txt"
 ---
 # Syntax
 The syntax of an SSH command,
-in its most general form, is:
+in its typical form, is:
 
 ```bash
 ssh [user@]hostname [-p port] [command]
@@ -163,6 +163,11 @@ is, as discussed, optional.
 If included, SSH will run that command;
 if not, it will run an interactive shell.
 
+There are also *way* more options
+(like, a silly amount).
+I once again direct you
+to the man page.
+
 ---
 # Now what?
 I installed a lot of fun stuff on the server.
@@ -179,7 +184,7 @@ Feel free to do some of the following things:
 * `confetty` or `confetty fireworks`: confetti and fireworks
 * Play a game; there's `adventure`, `boggle`, `hack`, `tetris`, `hangman` and more.
 
-If some of these graphical applications don't work,
+If some of these terminal applications don't work,
 try:
 
 ```bash
@@ -187,7 +192,7 @@ ssh -t fslc@allmight.think.usu.edu
 ```
 
 ---
-# File transfer with scp
+# File transfer
 That's right, SSH also does file transfer.
 
 Use the commands:
@@ -212,10 +217,14 @@ or SFTP is not enabled.
 You can also use the `sftp` command
 for interactive file transfer.
 
+```
+sftp user@hostname
+```
+
 ## sshfs
 
-This is something I use almost daily.
-SSHFS is a Linux program
+This is something I use frequently.
+SSHFS is a UNIX program
 that can mount an SSH directory
 on your local machine
 to be accessed as if they were local.
@@ -396,6 +405,8 @@ To launch it alongside a program (for example `tmux`), run:
 ssh-agent tmux
 ```
 
+---
+# SSH agent
 ## Using the agent
 
 To add a key to the agent, run:
@@ -405,11 +416,18 @@ ssh-add ~/.ssh/id_xxxxx.pub # adds specific key
 ```
 
 To remove keys, do the following:
-
 ```bash
 ssh-add -D # removes all keys with default names
 ssh-add -d ~/.ssh/id_xxxxx.pub # removes specific key
 ```
+
+You can also use your local keys
+that are loaded into your agent
+on the remote host using `ssh -A`.
+This is useful if you need
+to tunnel SSH through SSH
+or download private git repositories
+to the server.
 
 ---
 # SSH agent
@@ -541,8 +559,10 @@ To break down this option, it looks a bit like this:
 | 8080 | localhost | 5000 |
 
 This means that
-if I make a request to port 8080 on my machine
-the server will make a request to localhost:5000.
+if I send something to port 8080 on *my machine*,
+then SSH will send it to the *server*,
+which will send that same thing
+to localhost:5000 (itself).
 
 This is extremely useful
 when the computers are on different networks
@@ -595,9 +615,6 @@ many phones allow setting a system-wide SOCKS proxy,
 and, if all else fails,
 I have used `proxychains` before
 to pipe a program through a proxy.
-
-**PLEASE DO NOT** make a habit
-of proxying all your traffic through allmight.
 
 ---
 # Port forwarding
