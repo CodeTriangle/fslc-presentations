@@ -22,7 +22,35 @@ But don't you dare peek ahead. >:(
 
 ## Also:
 
-Go grab a cheatsheet handout from the back of the room, if you haven't.
+Go grab a cheatsheet handout from the entrance of the room, if you haven't.
+
+---
+# FSLC
+I am the president
+of the Free Software and Linux Club
+here at USU.
+We do weekly presentations
+on **Tuesdays at 6:30 in WIDT 007**
+for people of all skill levels
+on different open-source software
+and the things you can do with it.
+We also run a streaming service
+so that people who can't make it
+to the meetings
+can still watch live.
+We also have some other fun infrastructure
+including a Matrix server.
+
+This next Tuesday (the 24th)
+we will be doing lightning talks
+about things that we self-host
+since we've been talking about homelabbing
+over the past month or so.
+
+The following Tuesday (the 3rd)
+we will will have an interactive introduction
+to `git`, the version control software
+(another tool you should be using).
 
 ---
 # About this presentation
@@ -40,7 +68,7 @@ Today we'll be talking about:
 
 * Oh, and this presentation is open source!
 * So is the software that I'm using to present.
-* So are my other presentations for this club.
+* So are many of my other presentations.
 * Slideshow: https://github.com/CodeTriangle/fslc-presentations
 * Software: https://github.com/maaslalani/slides
 
