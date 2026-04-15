@@ -80,7 +80,7 @@
 							Internals of Archipelago
 						</li>
 						<li class="fragment fade-up">
-							Implementing a game in Archipelago (using CrossCode as a case study)
+							Implementing a game in Archipelago (using <em>CrossCode</em> as a case study)
 						</li>
 					</ul>
 				</section>
@@ -192,7 +192,7 @@
 							Place all those items in a pool.
 						</li>
 						<li class="fragment fade-up">
-							Replace all the items in random locations.
+							Put all the items back into the game in random locations.
 						</li>
 						<li class="fragment fade-up">
 							Play the game.
@@ -200,18 +200,20 @@
 					</ol>
 				</section>
 
-				<section id="rando-problems">
+				<section id="rando-problems" style="font-size: 0.9em">
 					<h1>But it's not that simple!</h1>
 					<p class="fragment fade-up">
-						Randomizers have to contend with a few simple facts
-						that make development just a bit more annoying.
+						Randomizers have to contend with a few interesting challenges
+						beyond just switching what items the game gives the player
+						at a certain point.
 					</p>
 					<ul>
 						<li class="fragment fade-up">
 							In most games, you encounter items
 							that let you progress through the game.
-							What happens when an items is accidentally placed
-							<em>behind</em> a gate that it unlocks?
+							What happens when an item (for instance, a key)
+							is accidentally placed <em>behind</em>
+							the door that it unlocks?
 							<ul>
 								<li class="fragment fade-up">
 									To combat this, we use "logic" systems
@@ -301,9 +303,10 @@
 					<h1>What is injection?</h1>
 					<ul>
 						<li class="fragment fade-up">
-							Code injection is how most mods
-							form modern games work
-							under the hood
+							Code injection,
+							also called <strong>function hooking</strong>,
+							is how most mods
+							for modern games work
 							(other than purely cosmetic mods
 							or mods that just replace game files).
 						</li>
@@ -323,7 +326,8 @@
 						</li>
 						<li class="fragment fade-up">
 							If not, you might have to hijack the game's runtime
-							by replacing a DLL with a "hacked" version
+							by replacing one of the game's files
+							with a "hacked" version
 							that loads mod code.
 						</li>
 					</ul>
@@ -361,7 +365,50 @@
 					</ul>
 				</section>
 
-				<section id="injection-tools">
+				<section id="injection-how-to">
+					<h1>How to get to injection</h1>
+					<ul>
+						<li class="fragment fade-up">
+							Many games written in dynamic languages
+							are distributed in bytecode,
+							which can be decompiled using specialized tools.
+							<ul>
+								<li class="fragment fade-up">
+									This is often necessary to have any idea
+									what is going on in the code.
+								</li>
+								<li class="fragment fade-up">
+									The decompiled code will have
+									the same functionality as the original
+									but it might look substantially different
+									and it will not have comments.
+								</li>
+							</ul>
+						</li>
+						<li class="fragment fade-up">
+							If you are using an engine
+							with a public-facing editor
+							like Godot or Unity,
+							you can typically open
+							the decompiled program
+							in the same version of
+							the game engine's editor
+							as the game was built in
+							and it <em>should</em> function identically.
+							<ul>
+								<li class="fragment fade-up">
+									If the game's engine does not
+									have any public-facing design tools,
+									then you will have just have
+									to go at it with a text editor
+									and fanmade tools.
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section id="injection-tools" style="font-size: 0.9em">
 					<h1>Common tools used for injection</h1>
 					<p style="font-size: 0.7em">
 						(varies based on the game engine used)
@@ -373,27 +420,50 @@
 							a code injector for C# runtimes
 							that currently only has stable support
 							for Unity games.
+							<ul>
+								<li class="fragment fade-up">
+									Hijacks a Mono library called winhttp.dll
+									to inject itself and load mods.
+								</li>
+								<li class="fragment fade-up">
+									Games 
+									whose modding communities started
+									before BepInEx was available
+									are based on custom injection stacks
+									like <a href="https://themulhima.github.io/Lumafly/">Lumafly</a>
+									for <em>Hollow Knight</em>.
+								</li>
+							</ul>
 						</li>
 						<li class="fragment fade-up">
 							<strong>Godot</strong>:
 							<a href="https://github.com/GodotModding/godot-mod-loader">Godot ModLoader</a>,
 							a generic ModLoader
-							that works with <em>any game made in Godot</em>
-							(see
-							<a href="https://github.com/GodotModding">this list</a>
-							for more resources).
+							that works with any game made in Godot using GDScript.
+							<ul>
+								<li class="fragment fade-up">
+									It can either be integrated into the game itself
+									by its developer
+									or loaded at runtime by overriding Godot options.
+								</li>
+								<li class="fragment fade-up">
+									See
+									<a href="https://github.com/GodotModding">this list</a>
+									for more resources.
+								</li>
+							</ul>
 						</li>
 						<li class="fragment fade-up">
 							<strong>Unreal</strong>:
 							<a href="https://github.com/Buckminsterfullerene02/UE-Modding-Tools#loaders">many; here's a list</a>.
 						</li>
 						<li class="fragment fade-up">
-							Some games, such as
-							<a href="https://www.teamfortress.com/post.php?id=238809">Team Fortress 2</a>,
-							<a href="https://vortexbuffer.com/synchrony/docs/">Crypt of the Necrodancer</a>, and
-							<a href="https://lua-api.factorio.com/latest/">Factorio</a>
+							Some games
 							have official modding APIs
-							for your perusal.
+							for your perusal, including
+							<a href="https://www.teamfortress.com/post.php?id=238809"><em>Team Fortress 2</em></a>,
+							<a href="https://vortexbuffer.com/synchrony/docs/"><em>Crypt of the Necrodancer</em></a>, and
+							<a href="https://lua-api.factorio.com/latest/"><em>Factorio</em></a>.
 						</li>
 					</ul>
 				</section>
@@ -403,41 +473,70 @@
 				<section id="rom-patch-intro">
 					<h1 class="r-fit-text">ROM Patching</h1>
 				</section>
+
 				<section id="rom-patching">
 					<h1>What is a ROM?</h1>
 					<p class="fragment fade-up">
 						Let's talk a little bit about
 						how retro games load up.
 					</p>
+					<ul>
+						<li class="fragment fade-up">
+							Unlike today's consoles,
+							retro consoles did not have
+							proper operating systems
+							which could load the information
+							on a cartridge.
+						</li>
+						<li class="fragment fade-up">
+							Instead, the cartridges themseles
+							contain a lot of fascinating hardware
+							that can insert additional memory
+							into the system.
+						</li>
+						<li class="fragment fade-up">
+							This memory is read-only
+							since the code and assets of the game
+							should not be edited
+							(also because including read-write memory
+							on every cartridge
+							would be significantly more expensive).
+							Thus the term for the contents of a cartridge
+							is "Read-Only Memory" or ROM.
+						</li>
+						<li class="fragment fade-up">
+							Emulators take these ROMs
+							and mount them into the virtual machine's memory
+							as a virtual cartridge.
+						</li>
+						<li class="fragment fade-up">
+							Certain games also mount read-write RAM
+							for increased storage space
+							(this RAM can be made persistent
+							using an onboard battery).
+						</li>
+					</ul>
+				</section>
+
+				<section id="rom-patching-nes">
+					<h1>A quick example</h1>
 					<p class="fragment fade-up">
-						Unlike today's consoles,
-						retro consoles did not have
-						proper operating systems
-						which could load the information
-						on a cartridge.
+						The NES has 64kB
+						of addressable memory
+						since memory addresses
+						are two bytes (16 bits) wide.
 					</p>
 					<p class="fragment fade-up">
-						Instead, the cartridges themseles
-						contain a lot of fascinating hardware
-						that can insert additional memory
-						into the system.
+						Its memory is divided up
+						between internal RAM,
+						memory-mapped registers,
+						and a large unmapped area
+						like so:
 					</p>
 					<p class="fragment fade-up">
-						This memory is read-only
-						since the code and assets of the game
-						should not be edited
-						and doing so would be expensive anyway.
-						Thus the term for the contents of a cartridge
-						is "Read-Only Memory" or ROM.
-					</p>
-					<p class="fragment fade-up">
-						Emulators take these ROMs
-						and mount them into the virtual machine's memory
-						as a virtual cartridge.
-					</p>
-					<p class="fragment fade-up">
-						Certain games also mount read-write RAM
-						using an onboard battery.
+						<a href="nes-memory-map.drawio.svg">
+							<img src="nes-memory-map.drawio.svg" target="_blank" style="height: 40%">
+						</a>
 					</p>
 				</section>
 
@@ -452,64 +551,93 @@
 					</p>
 					<p class="fragment fade-up">
 						Adept programmers can take a game
-						and write their own modifications,
+						and create modifications to it,
 						thus turning it into a different game entirely
 						(also known as ROM hacking).
+					</p>
+					<p class="fragment fade-up">
+						Typically, for copyright reasons,
+						these are distributed as patches
+						which can be overlayed on existing roms.
 					</p>
 					<p class="fragment fade-up">
 						For cartridge games,
 						a randomizer can read in a ROM,
 						make modifications to it,
-						randomizing any aspects of the game
-						that it wants to,
-						then spit it out as a new ROM.
+						then spit out a new ROM or ROM patch
+						providing all of
+						the randomizer's functionality
+						and the seed-specific item-to-location mapping.
 					</p>
 				</section>
 
 				<section id="roms-direct-memory">
 					<h1>How items work in ROMs</h1>
-					<p class="fragment fade-up">
-						Recall that ROMs are loaded
-						directly into the memory map of the console.
-						Every "thing" in the game
-						has a defined static memory address
-						that it can be found at.
-					</p>
-					<p class="fragment fade-up">
-						So let's say that in your game,
-						there is a byte that represents
-						whether the player has a sword
-						located at a certain memory address.
-						Every time the player tries to swing their sword,
-						you check this value to ensure that they are able to.
-					</p>
-					<p class="fragment fade-up">
-						Now, you also need certain memory addresses
-						to represent whether the player has retrieved
-						the items found at certain locations.
-					</p>
+					<ul>
+						<li class="fragment fade-up">
+							Recall that ROMs are loaded
+							directly into the memory map of the console.
+							Every "thing" in the game
+							has a defined static memory address
+							that it can be found at.
+						</li>
+						<li class="fragment fade-up">
+							So let's say that in your game,
+							there is a byte that represents
+							whether the player has a sword
+							located at a certain memory address.
+							Every time the player tries to swing their sword,
+							you check this value to ensure that they are able to.
+						</li>
+						<li class="fragment fade-up">
+							You also need certain memory addresses
+							to represent whether the player has retrieved
+							the items found at certain locations.
+						</li>
+						<li class="fragment fade-up">
+							Programmers in the 1980s
+							working with limited space
+							often made the smart choice
+							to represent both of these facts
+							using the same memory address,
+							meaning that the randomizer
+							might need to decouple these flags
+							where they exist.
+						</li>
+						<li class="fragment fade-up">
+							A lot of randomizers also include
+							new functionality in the ROM
+							or switch out game assets.
+						</li>
+					</ul>
 				</section>
 
-				<section id="roms-direct-memory-2">
-					<h1>How to create a randomized ROM</h1>
+				<section id="roms-direct-memory">
+					<h1>Aside: ISO patching</h1>
 					<p class="fragment fade-up">
-						Programmers in the 1980s
-						working with limited space
-						often made the smart choice
-						to represent both of these facts
-						using the same memory address.
+						An ISO is a term for a file
+						representing the contents
+						of an optical disc
+						such as a CD or DVD.
 					</p>
 					<p class="fragment fade-up">
-						So, to simplify a little bit,
-						the goal is to replace every reference
-						to certain flags
-						with those for different flags.
-						And boom, you have a randomizer.
+						Early DVD-based consoles
+						typically <em>do</em> have an OS,
+						but they are very minimal,
+						only providing BIOS-level functionality
+						that exposes several useful system calls
+						and typically stops running
+						when the game starts.
 					</p>
-					<p class="fragment fade-up" style="font-size:0.7em">
-						I will take questions at this point
-						but I'm not confident in my ability
-						to answer them.
+					<p class="fragment fade-up">
+						Patching an ISO is very similar
+						to patching a ROM.
+						For a randomizer,
+						all you need to do is change
+						the code portions of the disc
+						and use the system's built-in memory
+						and persistent storage
+						to compare flags.
 					</p>
 				</section>
 			</section>
@@ -1114,7 +1242,7 @@ class D4 available
 
 				<section id="crosscode-unsupported">
 					<p>
-						Because CrossCode is an "unsupported" game
+						Because CrossCode is a "custom" game
 						(meaning it isn't in the primary Archipelago repository)
 						the process to generate a game with CrossCode included
 						is a bit more manual.
@@ -1244,6 +1372,46 @@ class D4 available
 			</section>
 
 			<section>
+				<section id="ws-expl">
+					<h1>WebSockets protocol</h1>
+					<p>
+						Right, WebSockets. Who's familiar?
+					</p>
+					<p class="fragment fade-up">
+						WebSockets is a protocol
+						that allows for bidirectional data transfer
+						in a way that is more accessible
+						and a bit more secure for a web browser.
+						It is the protocol that Archipelago uses.
+					</p>
+					<p class="fragment fade-up">
+						It is the protocol that Archipelago uses
+						to transmit all kinds of data
+						between games.
+					</p>
+				</section>
+
+				<section id="ws-graph">
+					<h1>The Archipelago WebSockets protocol</h1>
+					<div class="mermaid fragment fade-up">
+						<pre>
+sequenceDiagram
+	Client ->> Server: [WebSockets connection]
+	Server ->> Client: RoomInfo(version, games, permissions)
+	Client ->> Server: GetDataPackage
+	Server ->> Client: DataPackage
+	Client ->> Server: Connect(name, game, password)
+	Server ->> Client: Connected(slot, players, checked_locations)
+	Note left of Client: Client checks location
+	Client ->> Server: LocationChecks(id...)
+	Note right of Server: Other player finds item for Client
+	Server ->> Client: ReceivedItems(id...)
+						</pre>
+					</div>
+				</section>
+			</section>
+
+			<section>
 				<section id="more-stuff">
 					<h1>More fun stuff</h1>
 					<p>
@@ -1279,12 +1447,20 @@ class D4 available
 				</section>
 
 				<section id="ap-games">
-					<h1>Original Archipelago Games</h1>
+					<h1>Archipelago-unique games</h1>
 					<ul>
 						<li class="fragment fade-up">
-							<a href="https://clique.pharware.com/"><strong>Clique</strong></a>:
-							the best game ever made.
-							you click a button and release a check.
+							<a href="https://archipelago.gg/games/APQuest/info/en"><strong>APQuest</strong></a>:
+							a very simple game
+							that provides a tutorial
+							on how to develop an APWorld.
+						</li>
+						<li class="fragment fade-up">
+							<a href="https://jigsaw-ap.netlify.app/"><strong>Jigsaw for AP</strong></a>:
+							a configurable jigsaw puzzle.
+							Put the pieces together
+							as you slowly receive them
+							from other worlds.
 						</li>
 						<li class="fragment fade-up">
 							<a href="https://github.com/APSudoku/APSudoku"><strong>BK Sudoku</strong></a>:
@@ -1300,7 +1476,7 @@ class D4 available
 							and collect checks all by itself.
 						</li>
 						<li class="fragment fade-up">
-							<a href="https://github.com/airbreather/Autopelago"><strong>Slow Release Client</strong></a>:
+							<a href="https://github.com/gjgfuj/AP-SlowRelease"><strong>Slow Release Client</strong></a>:
 							a game that releases a single check
 							every set time interval.
 						</li>
